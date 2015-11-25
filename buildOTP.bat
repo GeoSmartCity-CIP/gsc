@@ -1,1 +1,0 @@
-java -Xmx4G -jar target/otp-0.19.0-SNAPSHOT-shaded.jar --build c:\opt\eclipse_luna_workspace\OpenTripPlanner\datiTurku\ --analyst --preFlight
