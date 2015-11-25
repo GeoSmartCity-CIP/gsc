@@ -1,0 +1,1 @@
+java -Xmx4G -jar target/otp-0.19.0-SNAPSHOT-shaded.jar --autoScan --autoReload --analyst --preFlight
