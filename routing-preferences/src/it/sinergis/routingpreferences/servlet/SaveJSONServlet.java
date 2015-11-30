@@ -70,6 +70,7 @@ public class SaveJSONServlet extends HttpServlet {
 				}
 				
 			} catch (Exception e) {
+				logger.error("Error",e);
 				logger.error(e.getMessage());
 				request.setAttribute("risposta", e.getMessage());
 			}
@@ -101,6 +102,7 @@ public class SaveJSONServlet extends HttpServlet {
 					
 				request.setAttribute("risposta", sb.toString());
 			} catch (Exception e) {
+				logger.error("Error",e);
 				logger.error(e.getMessage());
 				request.setAttribute("risposta", e.getMessage());
 			}
@@ -136,6 +138,7 @@ public class SaveJSONServlet extends HttpServlet {
 				
 				request.setAttribute("risposta", "Preference succesfully saved .");
 			} catch (Exception e) {
+				logger.error("Error",e);
 				logger.error(e.getMessage());
 				request.setAttribute("risposta", e.getMessage());
 			}
@@ -163,6 +166,7 @@ public class SaveJSONServlet extends HttpServlet {
 				
 				request.setAttribute("risposta", sb.toString());
 			} catch (Exception e) {
+				logger.error("Error",e);
 				logger.error(e.getMessage());
 				request.setAttribute("risposta", e.getMessage());
 			}
@@ -176,6 +180,7 @@ public class SaveJSONServlet extends HttpServlet {
 				
 				request.setAttribute("risposta", "Record succesfully deleted.");
 			} catch (Exception e) {
+				logger.error("Error",e);
 				logger.error(e.getMessage());
 				request.setAttribute("risposta",e.getMessage());
 			}
@@ -225,6 +230,7 @@ public class SaveJSONServlet extends HttpServlet {
 			logger.info("transofrmed query:"+ query);
 			return query; 
 		} catch(Exception e) {
+			logger.error("Error",e);
 			logger.error("Error in the research query: research queries must follow the following format: 'jsonNode'/'jsonChildNode'/.../'jsonRequestedNode' = 'requestedValue'");
 			return null;
 		}
@@ -244,6 +250,7 @@ public class SaveJSONServlet extends HttpServlet {
 			}
 			return mapper.writeValueAsString(jsonTreeRootObject);
 		} catch (IOException e) {
+			logger.error("Error",e);
 			logger.error(e.getMessage());
 			return null;
 		}	
@@ -272,6 +279,7 @@ public class SaveJSONServlet extends HttpServlet {
 			return mapper.writeValueAsString(jsonTreeRootObject);
 			
 		} catch (IOException e) {
+			logger.error("Error",e);
 			logger.error(e.getMessage());
 			return null;
 		}	

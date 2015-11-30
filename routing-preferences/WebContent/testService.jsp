@@ -24,16 +24,16 @@
 	    	document.getElementById("bikingSpeed").style.display = "none";
 
 	    	document.getElementById("textArea").title = "Insert a JSON itinerary.";
-	    	document.getElementById("textArea").value = "e.g. "+document.getElementById("hiddenJSONExample").value;
+	    	document.getElementById("textArea").value = document.getElementById("hiddenJSONExample").value;
 	    	
 	    	document.getElementById("notesArea").title = "Insert additional notes.";
-	    	document.getElementById("notesArea").value = "e.g.  my notes.";
+	    	document.getElementById("notesArea").value = "my notes.";
 	    	
 	    	document.getElementById("userIdArea").title = "Insert the user's id.";
-	    	document.getElementById("userIdArea").value = "e.g.  1.";
+	    	document.getElementById("userIdArea").value = "1";
 
 	    	document.getElementById("itineraryIdArea").title = "Insert the selected itinerary index among the various JSON itineraries.";
-	    	document.getElementById("itineraryIdArea").value = "e.g.  1";
+	    	document.getElementById("itineraryIdArea").value = "1";
 	    	
 	    	
 	    } else if(selected === 'read'){
@@ -47,7 +47,7 @@
 	    	document.getElementById("bikingSpeed").style.display = "none";
 
 	    	document.getElementById("textArea").title = "Insert a research query.";
-	    	document.getElementById("textArea").value = "e.g. "+document.getElementById("hiddenQueryExample").value;
+	    	document.getElementById("textArea").value = document.getElementById("hiddenQueryExample").value;
 	    	
 	    } else if(selected === 'savePreferences'){
 	    	document.getElementById("text").style.display = "none";
@@ -60,19 +60,19 @@
 	    	document.getElementById("bikingSpeed").style.display = "table-row";
 
 	    	document.getElementById("userIdArea").title = "Insert the user's id.";
-	    	document.getElementById("userIdArea").value = "e.g.  1.";
+	    	document.getElementById("userIdArea").value = "1";
 
 	    	document.getElementById("maxWalkingDistanceArea").title = "Insert the desired maximum distance to be covered on foot.";
-	    	document.getElementById("maxWalkingDistanceArea").value = "e.g.  1.1";
+	    	document.getElementById("maxWalkingDistanceArea").value = "1.1";
 
 	    	document.getElementById("walkingSpeedArea").title = "Insert the desired walking speed.";
-	    	document.getElementById("walkingSpeedArea").value = "e.g.  1.1";
+	    	document.getElementById("walkingSpeedArea").value = "1.1";
 
 	    	document.getElementById("maxBikingDistanceArea").title = "IInsert the desired maximum distance to be covered by bike.";
-	    	document.getElementById("maxBikingDistanceArea").value = "e.g.  1.1";
+	    	document.getElementById("maxBikingDistanceArea").value = "1.1";
 
 	    	document.getElementById("bikingSpeedArea").title = "Insert the desired biking speed.";
-	    	document.getElementById("bikingSpeedArea").value = "e.g.  1.1";
+	    	document.getElementById("bikingSpeedArea").value = "1.1";
 	    	
 	    } else if(selected === 'readPreferences'){
 	    	document.getElementById("text").style.display = "none";
@@ -85,7 +85,7 @@
 	    	document.getElementById("bikingSpeed").style.display = "none";
 
 	    	document.getElementById("userIdArea").title = "Insert the user's id.";
-	    	document.getElementById("userIdArea").value = "e.g.  1.";
+	    	document.getElementById("userIdArea").value = "1";
 	    	
 	    } else if(selected === 'deletePreferences'){
 	    	document.getElementById("text").style.display = "none";
@@ -98,7 +98,7 @@
 	    	document.getElementById("bikingSpeed").style.display = "none";
 
 	    	document.getElementById("userIdArea").title = "Insert the user's id.";
-	    	document.getElementById("userIdArea").value = "e.g.  1.";
+	    	document.getElementById("userIdArea").value = "1";
 	    	
 	    }
     	document.getElementById("submitButton").style.display = "table-row";
@@ -121,7 +121,7 @@ body,tr,td {
 	</tr>
 </table>
 <% PropertyReader pr = new PropertyReader("routingpreferences.properties"); %>
-<input type="hidden" id="hiddenJSONExample" value="<%  out.print(StringEscapeUtils.escapeHtml4(pr.getValue("JSONinputExample").replaceAll("\\p{Cntrl}", "").replaceAll("\"","&quot;")));%>"></input>
+<input type="hidden" id="hiddenJSONExample" value="<%  out.print(StringEscapeUtils.escapeHtml4(pr.getValue("JSONinputExample").replace("\\","\\\\").replaceAll("\\p{Cntrl}", "")));%>"></input>
 <input type="hidden" id="hiddenQueryExample" value="<% out.print(pr.getValue("queryExample"));%>"></input>
 <form action="saveJSONServlet" method="post" id="serviceForm" accept-charset="UTF-8">
 <%
