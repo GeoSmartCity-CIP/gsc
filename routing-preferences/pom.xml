@@ -12,6 +12,7 @@
 				<directory>resources/xsd</directory>
 			</resource>
 		</resources>
+		<finalName>routing-preferences</finalName>
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
