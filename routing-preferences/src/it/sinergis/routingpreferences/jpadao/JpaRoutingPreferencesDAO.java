@@ -1,16 +1,15 @@
 package it.sinergis.routingpreferences.jpadao;
 
-import it.sinergis.routingpreferences.common.PropertyReader;
-import it.sinergis.routingpreferences.dao.RoutingPreferencesDAO;
-import it.sinergis.routingpreferences.model.RoutingPreferences;
-
 import java.util.List;
 
 import javax.persistence.EntityManager;
-import javax.persistence.PersistenceException;
 import javax.persistence.Query;
 
 import org.apache.log4j.Logger;
+
+import it.sinergis.routingpreferences.dao.RoutingPreferencesDAO;
+import it.sinergis.routingpreferences.exception.RPException;
+import it.sinergis.routingpreferences.model.RoutingPreferences;
 
 /**
  * Classe per la gestione della JpaDAO delle preferenze di routing
@@ -32,22 +31,21 @@ public class JpaRoutingPreferencesDAO extends AbstractJpaDAO implements RoutingP
 	}
 
 	@Override
-	public void insertRoutingPreferences(String jsonText)
-			throws Exception {
+	public void updateRoutingPreferences(String jsonText,String queryText)
+			throws RPException {
 		EntityManager em = null;
 		try {			
-			
 			em = getEntityManager();
-			
-			RoutingPreferences itinerariesPreferences= null;			
-			
 			em.getTransaction().begin();
 			
-			//Nuova preferenza
-			itinerariesPreferences = new RoutingPreferences();
-			itinerariesPreferences.setData(jsonText);
+			Query query = em.createNativeQuery(queryText,RoutingPreferences.class);	
+			int result = query.executeUpdate();
+			//no checks since there can only be one record deleted here
+			logger.info(result+" records deleted.");
+			RoutingPreferences routingPreferences = new RoutingPreferences();
+			routingPreferences.setData(jsonText);
 			
-			em.persist(itinerariesPreferences);					
+			em.persist(routingPreferences);					
 			em.flush();
 			
 			em.getTransaction().commit();				
@@ -56,14 +54,38 @@ public class JpaRoutingPreferencesDAO extends AbstractJpaDAO implements RoutingP
 			if(em != null)
 				em.getTransaction().rollback();
 			
-			logger.error("Save preferences error", ex);
-			if(ex instanceof PersistenceException) {
-				PropertyReader pr = new PropertyReader("error_messages.properties");			
-				throw new Exception(pr.getValue("ER03"));
-			} else {
-				PropertyReader pr = new PropertyReader("error_messages.properties");			
-				throw new Exception(pr.getValue("ER02"));
-			}
+			logger.error("update routingpreferences error", ex);
+			throw new RPException("ER01");
+		}
+		finally {
+			if (em != null)
+				em.close();
+		}
+		
+	}
+	@Override
+	public void insertRoutingPreferences(String jsonText)
+			throws RPException {
+		EntityManager em = null;
+		try {			
+			
+			em = getEntityManager();
+			em.getTransaction().begin();
+			
+			RoutingPreferences routingPreferences = new RoutingPreferences();
+			routingPreferences.setData(jsonText);
+			
+			em.persist(routingPreferences);					
+			em.flush();
+			
+			em.getTransaction().commit();				
+		}
+		catch(Exception ex) {
+			if(em != null)
+				em.getTransaction().rollback();
+			
+			logger.error("save routingpreferences error", ex);
+			throw new RPException("ER01");
 		}
 		finally {
 			if (em != null)
@@ -73,34 +95,23 @@ public class JpaRoutingPreferencesDAO extends AbstractJpaDAO implements RoutingP
 	}
 
 	@Override
-	public List<RoutingPreferences> searchRoutingPreferences(String queryText)
-			throws Exception {
+	public List<RoutingPreferences> getRoutingPreferences(String queryText)
+			throws RPException {
 		EntityManager em = null;
-		try {			
-			
+		try {						
 			em = getEntityManager();
-
 			em.getTransaction().begin();
-			
-			//Nuova preferenza
 			Query query = em.createNativeQuery(queryText,RoutingPreferences.class);					
 			List<RoutingPreferences> resultList = (List<RoutingPreferences>) query.getResultList();
 
-			return resultList;
-			
+			return resultList;			
 		}
 		catch(Exception ex) {
 			if(em != null)
 				em.getTransaction().rollback();
 			
-			logger.error("Search routing preference error", ex);
-			if(ex instanceof PersistenceException) {
-				PropertyReader pr = new PropertyReader("error_messages.properties");			
-				throw new Exception(pr.getValue("ER03"));
-			} else {
-				PropertyReader pr = new PropertyReader("error_messages.properties");			
-				throw new Exception(pr.getValue("ER02"));
-			}
+			logger.error("get routingpreference error", ex);
+			throw new RPException("ER01");
 		}
 		finally {
 			if (em != null)
@@ -109,32 +120,34 @@ public class JpaRoutingPreferencesDAO extends AbstractJpaDAO implements RoutingP
 	}
 
 	@Override
-	public void deleteRoutingPreference(String queryText)
-			throws Exception {
+	public void deleteRoutingPreferences(String queryText)
+			throws RPException {
 		EntityManager em = null;
-		try {			
-			
+		try {		
+				
 			em = getEntityManager();
 
 			em.getTransaction().begin();
 			
-			//Nuova preferenza
 			Query query = em.createNativeQuery(queryText,RoutingPreferences.class);	
 			int result = query.executeUpdate();
 			logger.info(result+" records deleted.");
+			if(result == 0) {
+				logger.error("no routing preferences found for deletion.");
+				throw new RPException("ER06");
+			}
+			
 			em.getTransaction().commit();
-		}
-		catch(Exception ex) {
+			
+		} catch(Exception ex) {
 			if(em != null)
 				em.getTransaction().rollback();
 			
 			logger.error("Delete routing preference error", ex);
-			if(ex instanceof PersistenceException) {
-				PropertyReader pr = new PropertyReader("error_messages.properties");			
-				throw new Exception(pr.getValue("ER03"));
+			if(ex instanceof RPException) {
+				throw ex;
 			} else {
-				PropertyReader pr = new PropertyReader("error_messages.properties");			
-				throw new Exception(pr.getValue("ER02"));
+				throw new RPException("ER01");
 			}
 		}
 		finally {
@@ -143,119 +156,4 @@ public class JpaRoutingPreferencesDAO extends AbstractJpaDAO implements RoutingP
 		}
 		
 	}
-		
-//	/**
-//	 * Metodo che esegue il salvataggio delle informazioni di una preferenza di routing
-//	 */
-//	public void insertRoutingPreferences(RoutingPreferencesInsertRequest routingPreferencesInsertRequest) throws  Exception {
-//
-//		EntityManager em = null;
-//		try {			
-//			
-//			em = getEntityManager();
-//			
-//			RoutingPreferences routingPreferences = null;			
-//						
-//			em.getTransaction().begin();
-//			
-//			//Nuova preferenza
-//			routingPreferences = new RoutingPreferences();
-//			routingPreferences.setUserId(routingPreferencesInsertRequest.getRoutingPreference().getUserID());
-//			routingPreferences.setBikingSpeed(routingPreferencesInsertRequest.getRoutingPreference().getBikingSpeed());
-//			routingPreferences.setMaxBikeDistance(routingPreferencesInsertRequest.getRoutingPreference().getMaxBikeDistance());
-//			routingPreferences.setMaxWalkDistance(routingPreferencesInsertRequest.getRoutingPreference().getMaxWalkDistance());
-//			routingPreferences.setWalkingSpeed(routingPreferencesInsertRequest.getRoutingPreference().getWalkingSpeed());
-//					
-//			em.persist(routingPreferences);					
-//			em.flush();
-//			
-//			em.getTransaction().commit();					
-//		}
-//		catch(Exception ex) {
-//			if(em != null)
-//				em.getTransaction().rollback();
-//			
-//			logger.error("Save routing preference error", ex);
-//						
-//			throw ex;
-//		}
-//		finally {
-//			if (em != null)
-//				em.close();
-//		}
-//	}
-//
-//	@Override
-//	public List<RoutingPreferences> searchRoutingPreferences(String userId)
-//			throws Exception {
-//		
-//		List<RoutingPreferences> result;
-//		EntityManager em = null;
-//		try {			
-//			
-//			em = getEntityManager();
-//				
-//			Query query = em.createNamedQuery("RoutingPreferences.findByUserId");
-//			
-//			query.setParameter("userId", userId);
-//			
-//			result = (List<RoutingPreferences>) query.getResultList();	
-//			
-//			return result;
-//		}
-//		catch(Exception ex) {			
-//			
-//			logger.error("Search routing preference service error : ", ex);
-//						
-//			throw ex;
-//		}
-//		finally {
-//			if (em != null)
-//				em.close();
-//		}
-//	}
-//
-//	@Override
-//	public void deleteRoutingPreference(
-//			RoutingPreferencesDeleteRequest routingPreferencesRequest)
-//			throws Exception {
-//
-//		List<RoutingPreferences> result;
-//		EntityManager em = null;
-//		try {			
-//			
-//			em = getEntityManager();
-//			em.getTransaction().begin();
-//			
-//			Query query = em.createNamedQuery("RoutingPreferences.findByUserId");
-//			
-//			query.setParameter("userId", routingPreferencesRequest.getUserID());
-//			
-//			result = (List<RoutingPreferences>) query.getResultList();	
-//			if(result.isEmpty()) {
-//				
-//				throw new NoResultException();
-//			}
-//			
-//			for(RoutingPreferences routingPreferences : result) {
-//				em.remove(routingPreferences);
-//				em.flush();	
-//			}
-//			
-//			em.getTransaction().commit();	
-//						
-//		}		
-//		catch(Exception ex) {			
-//			if(em != null)
-//				em.getTransaction().rollback();
-//			
-//			logger.error("Delete routing preference service error", ex);
-//						
-//			throw ex;
-//		}
-//		finally {
-//			if (em != null)
-//				em.close();
-//		}
-//	}
 }

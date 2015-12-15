@@ -1,297 +1,184 @@
-//package it.sinergis.routingpreferences;
-//
-//import it.sinergis.routingpreferences.common.Constants;
-//import it.sinergis.routingpreferences.jpadao.JpaRoutingPreferencesDAO;
-//import it.sinergis.routingpreferences.model.RoutingPreferences;
-//import it.sinergis.routingpreferences.schema.ErrorType;
-//import it.sinergis.routingpreferences.schema.ObjectFactory;
-//import it.sinergis.routingpreferences.schema.RoutingPreferenceType;
-//import it.sinergis.routingpreferences.schema.RoutingPreferencesDeleteRequest;
-//import it.sinergis.routingpreferences.schema.RoutingPreferencesDeleteResponseType;
-//import it.sinergis.routingpreferences.schema.RoutingPreferencesInsertRequest;
-//import it.sinergis.routingpreferences.schema.RoutingPreferencesInsertResponseType;
-//import it.sinergis.routingpreferences.schema.RoutingPreferencesSearchRequest;
-//import it.sinergis.routingpreferences.schema.RoutingPreferencesSearchResponseType;
-//
-//import java.io.IOException;
-//import java.util.ArrayList;
-//import java.util.List;
-//
-//import javax.jws.WebMethod;
-//import javax.jws.WebParam;
-//import javax.jws.WebService;
-//import javax.persistence.NoResultException;
-//import javax.xml.XMLConstants;
-//import javax.xml.bind.JAXBContext;
-//import javax.xml.bind.JAXBException;
-//import javax.xml.bind.Marshaller;
-//import javax.xml.transform.stream.StreamSource;
-//import javax.xml.validation.Schema;
-//import javax.xml.validation.SchemaFactory;
-//
-//import org.apache.log4j.Logger;
-//import org.xml.sax.SAXException;
-//import org.xml.sax.helpers.DefaultHandler;
-//
-///***
-// * WebService per la gestione delle preferenze di routing
-// * 
-// * @author Andrea Di Nora
-// * 
-// */
-//@WebService(name = "routingPreferencesService", targetNamespace = "http://routingPreferencesService.sinergis.it/")
-//public class RoutingPreferencesService {
-//
-//	/** Logger. */
-//	private static Logger logger;
-//	
-//	/** Factory JAXB Routing Preferences Service. */
-//	private ObjectFactory routingPreferencesObjFactory;
-//	
-//	
-//	/**
-//	 * Costruttore di default
-//	 */
-//	public RoutingPreferencesService() {
-//		logger = Logger.getLogger(this.getClass());
-//		this.routingPreferencesObjFactory = new ObjectFactory();			
-//	}
-//	
-//	
-//	/**
-//	 * Metodo che inserisce una preferenza di routing nella banca dati
-//	 * @param request dati sulla preferenza da inserire, in formato xml
-//	 * @return xml di risposta: vuoto se l'inserimento e' andato a buon fine oppure contiene l'eventuale messaggio di errore
-//	 */
-//	@WebMethod(operationName = "routingPreferencesInsert")
-//	public RoutingPreferencesInsertResponseType routingPreferencesInsert(@WebParam(name = "request", targetNamespace = "") RoutingPreferencesInsertRequest request) {
-//		
-//		logger.debug("Service request: " + request);
-//				
-//		RoutingPreferencesInsertResponseType response = routingPreferencesObjFactory.createRoutingPreferencesInsertResponseType();		
-//		if(!validateInsertRequest(request)) {
-//			ErrorType err = routingPreferencesObjFactory.createErrorType();
-//			err.setCode(Constants.RP002_ERR_CODE);
-//			err.setDescription(Constants.RP002_ERR_MSG);
-//			response.setError(err);
-//			return response;
-//		}
-//			         
-//        try {
-//        	JpaRoutingPreferencesDAO jpaRoutingPreferencesDAO = new JpaRoutingPreferencesDAO();        	
-//        	jpaRoutingPreferencesDAO.insertRoutingPreferences(request);
-//			
-//		}
-//        catch(IOException e) {
-//        	ErrorType err = routingPreferencesObjFactory.createErrorType();
-//			err.setCode(Constants.RP006_ERR_CODE);
-//			err.setDescription(Constants.RP006_ERR_MSG);
-//			response.setError(err);
-//			return response;
-//        }
-//        catch (Exception e) {
-//        	ErrorType err = routingPreferencesObjFactory.createErrorType();
-//			err.setCode(Constants.RP001_ERR_CODE);
-//			err.setDescription(Constants.RP001_ERR_MSG);
-//			response.setError(err);
-//			return response;
-//
-//		}
-//               
-//		return response;
-//	}
-//	
-//	/**
-//	 * Metodo che ricerca le preferenze di routing in input
-//	 * @param request contenuto dei dati di ricerca, in formato xml
-//	 * @return lista delle preferenze di routing (eventualmente vuota) oppure un messaggio di errore se il servizio fallisce
-//	 */
-//	@WebMethod(operationName = "routingPreferencesSearch")
-//	public RoutingPreferencesSearchResponseType routingPreferencesSearch(@WebParam(name = "request", targetNamespace = "") RoutingPreferencesSearchRequest request) {
-//		logger.debug("Service request: " + request);
-//		
-//		RoutingPreferencesSearchResponseType response = routingPreferencesObjFactory.createRoutingPreferencesSearchResponseType();
-//		
-//		if(!validateSearchRequest(request)) {
-//			ErrorType err = routingPreferencesObjFactory.createErrorType();
-//			err.setCode(Constants.RP002_ERR_CODE);
-//			err.setDescription(Constants.RP002_ERR_MSG);
-//			response.setError(err);
-//			return response;
-//		}
-//			 	
-//        try {
-//        	JpaRoutingPreferencesDAO jpaRoutingPreferencesDAO = new JpaRoutingPreferencesDAO();
-//        	
-//        	List<RoutingPreferences> results = jpaRoutingPreferencesDAO.searchRoutingPreferences(request.getUserID());        	
-//        	
-//        	response.getRoutingPreference().addAll(popolaSearchResponse(results));
-//        	
-//        	return response;
-//			
-//		} catch (Exception e) {
-//			ErrorType err = routingPreferencesObjFactory.createErrorType();
-//			err.setCode(Constants.RP003_ERR_CODE);
-//			err.setDescription(Constants.RP003_ERR_MSG);
-//			response.setError(err);
-//			return response;
-//		}
-//	}
-//
-//	/**
-//	 * Metodo che elimina dalla banca dati una preferenza di routing non piu' necessaria
-//	 * @param request dati sulla preferenza di routing da eliminare, in formato xml
-//	 * @return risposta vuota se il servizio e' andato a buon fine, oppure un eventuale messaggio di errore
-//	 */
-//	@WebMethod(operationName = "routingPreferencesDelete")
-//	public RoutingPreferencesDeleteResponseType routingPreferencesDelete(@WebParam(name = "request", targetNamespace = "") RoutingPreferencesDeleteRequest request) {
-//		
-//		logger.debug("Service request: " + request);
-//		
-//		RoutingPreferencesDeleteResponseType response = routingPreferencesObjFactory.createRoutingPreferencesDeleteResponseType();
-//		
-//		if(!validateDeleteRequest(request)) {
-//			ErrorType err = routingPreferencesObjFactory.createErrorType();
-//			err.setCode(Constants.RP002_ERR_CODE);
-//			err.setDescription(Constants.RP002_ERR_MSG);
-//			response.setError(err);
-//			return response;
-//		}
-//			 
-//        JpaRoutingPreferencesDAO jpaRoutingPreferencesDAO = new JpaRoutingPreferencesDAO();
-//        try {
-//        	jpaRoutingPreferencesDAO.deleteRoutingPreference(request);
-//		}
-//        catch (NoResultException e) {
-//			ErrorType err = routingPreferencesObjFactory.createErrorType();
-//			err.setCode(Constants.RP005_ERR_CODE);
-//			err.setDescription(Constants.RP005_ERR_MSG);
-//			response.setError(err);
-//			return response;
-//
-//        }
-//        catch (Exception e) {			
-//			ErrorType err = routingPreferencesObjFactory.createErrorType();
-//			err.setCode(Constants.RP004_ERR_CODE);
-//			err.setDescription(Constants.RP004_ERR_MSG);
-//			response.setError(err);
-//			return response;
-//		}
-//               
-//		return response;
-//	}
-//	
-//	
-//	/**
-//	 * Metodo che popola la risposta del metodo di ricerca delle preferenze di routing
-//	 * @param routingPreferences elenco delle preferenze di routing
-//	 * @return lista delle preferenze di routing
-//	 */
-//	private List<RoutingPreferenceType> popolaSearchResponse(List<RoutingPreferences> routingPreferences) {
-//		
-//		List<RoutingPreferenceType> result = new ArrayList<RoutingPreferenceType>();
-//		
-//		for(RoutingPreferences routingPreference : routingPreferences){
-//			RoutingPreferenceType routingPreferenceType = routingPreferencesObjFactory.createRoutingPreferenceType();
-//			
-//			routingPreferenceType.setUserID(routingPreference.getUserId());
-//			routingPreferenceType.setBikingSpeed(routingPreference.getBikingSpeed());
-//			routingPreferenceType.setMaxBikeDistance(routingPreference.getMaxBikeDistance());
-//			routingPreferenceType.setMaxWalkDistance(routingPreference.getMaxWalkDistance());
-//			routingPreferenceType.setWalkingSpeed(routingPreference.getWalkingSpeed());
-//			
-//			result.add(routingPreferenceType);
-//		}
-//		
-//		return result;
-//	}
-//	
-//	/**
-//	 * Metodo che valida la richiesta di inserimeto routing preferences
-//	 * @param request richiesta di inserimento routing preferences
-//	 * @return true se la richiesta e' valida, false altrimenti
-//	 */
-//	private boolean validateInsertRequest(RoutingPreferencesInsertRequest request) {
-//		
-//		//Carichiamo l'xsd		
-//		SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-//		
-//		try {
-//			Schema schema = schemaFactory.newSchema(new StreamSource(getClass().getResourceAsStream("/routingPreferences.xsd")));
-//			JAXBContext jaxbContext = JAXBContext.newInstance("it.sinergis.routingpreferences.schema");
-//			
-//			Marshaller marshaller = jaxbContext.createMarshaller();
-//			marshaller.setSchema(schema);
-//			marshaller.marshal(request, new DefaultHandler());
-//			return true;
-//		} catch (SAXException e) {
-//			logger.error("Schema validation service error.",e);
-//			
-//			return false;
-//		} 
-//		catch ( JAXBException e) {
-//			logger.error("Schema validation service error.",e);
-//			
-//			return false;
-//		}
-//			
-//	}
-//	
-//	/**
-//	 * Metodo che valida la richiesta di ricerca preferenze routing
-//	 * @param request richiesta di ricerca preferenza routing
-//	 * @return true se la richiesta e' valida, false altrimenti
-//	 */
-//	private boolean validateSearchRequest(RoutingPreferencesSearchRequest request) {
-//		
-//		//Carichiamo l'xsd		
-//		SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-//		
-//		try {
-//			Schema schema = schemaFactory.newSchema(new StreamSource(getClass().getResourceAsStream("/routingPreferences.xsd")));
-//			JAXBContext jaxbContext = JAXBContext.newInstance("it.sinergis.routingpreferences.schema");
-//			
-//			Marshaller marshaller = jaxbContext.createMarshaller();
-//			marshaller.setSchema(schema);
-//			marshaller.marshal(request, new DefaultHandler());
-//			return true;
-//		} catch (SAXException e) {
-//			logger.error("Schema validation service error.",e);
-//			return false;
-//		} 
-//		catch ( JAXBException e) {
-//			logger.error("Schema validation service error.",e);
-//			return false;
-//		}
-//			
-//	}
-//	
-//	/**
-//	 * Metodo che valida la richiesta di cancellazione preferenza routing
-//	 * @param request richiesta di cancellazione preferenza routing
-//	 * @return true se la richiesta e' valida, false altrimenti
-//	 */
-//	private boolean validateDeleteRequest(RoutingPreferencesDeleteRequest request) {
-//		
-//		//Carichiamo l'xsd		
-//		SchemaFactory schemaFactory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-//		
-//		try {
-//			Schema schema = schemaFactory.newSchema(new StreamSource(getClass().getResourceAsStream("/routingPreferences.xsd")));
-//			JAXBContext jaxbContext = JAXBContext.newInstance("it.sinergis.routingpreferences.schema");
-//			
-//			Marshaller marshaller = jaxbContext.createMarshaller();
-//			marshaller.setSchema(schema);
-//			marshaller.marshal(request, new DefaultHandler());
-//			return true;
-//		} catch (SAXException e) {
-//			logger.error("Schema validation service error.",e);
-//			return false;
-//		} 
-//		catch ( JAXBException e) {
-//			logger.error("Schema validation service error.",e);
-//			return false;
-//		}
-//			
-//	}
-//}
+package it.sinergis.routingpreferences;
+
+import java.io.IOException;
+import java.util.List;
+
+import org.apache.commons.lang3.StringUtils;
+import org.apache.log4j.Logger;
+
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import it.sinergis.routingpreferences.dao.DAOFactory;
+import it.sinergis.routingpreferences.dao.RoutingPreferencesDAO;
+import it.sinergis.routingpreferences.exception.RPException;
+import it.sinergis.routingpreferences.jpadao.JpaDAOFactory;
+import it.sinergis.routingpreferences.model.RoutingPreferences;
+
+/***
+ * Class to handle RoutingPreference requests.
+ * 
+ * @author Lorenzo Longhitano
+ * 
+ */
+public class RoutingPreferencesService {
+
+	/** Logger. */
+	private static Logger logger;
+	
+	/** DAO factory. */
+	DAOFactory daoFactory;
+	
+	/** RoutingPreferences DAO. */
+	RoutingPreferencesDAO routingPreferencesDAO;
+	
+	/** Jackson object mapper. */
+	ObjectMapper om;
+
+	
+	public RoutingPreferencesService() {
+		logger = Logger.getLogger(this.getClass());
+		daoFactory = new JpaDAOFactory();
+		routingPreferencesDAO = daoFactory.getRoutingPreferencesDAO();
+		om = new ObjectMapper();
+	}
+	
+	public String saveOrUpdatePreferences(String jsonRoutingPreferenceText) {
+
+		try {
+			//check if there's another preference already saved for the same userId
+			RoutingPreferences routingPreferences = getPreferencesObject(jsonRoutingPreferenceText);
+				
+			//if no results found -> add new record
+			if(routingPreferences == null) {
+				routingPreferencesDAO.insertRoutingPreferences(jsonRoutingPreferenceText);
+				return getUserIdFromJsonText(jsonRoutingPreferenceText);
+			//otherwise update current record
+			} else {
+				String queryText = "'userId' = '"+getUserIdFromJsonText(jsonRoutingPreferenceText)+"'";
+				routingPreferencesDAO.updateRoutingPreferences(jsonRoutingPreferenceText,createQuery(queryText, "rp_t_preferences2", "data","delete"));
+				
+				//return id
+				return getUserIdFromJsonText(jsonRoutingPreferenceText);
+			}
+		} catch(RPException rpe) {
+			return rpe.returnErrorString();
+		} catch(Exception e) {
+			RPException rpe = new RPException("ER01");
+			logger.error("saveOrUpdatePreferences service: unhandled error "+rpe.returnErrorString());
+			return rpe.returnErrorString();
+		}
+	}
+	
+	public String getPreferences(String jsonRoutingPreferenceText) {
+		try {
+			RoutingPreferences routingPreferences = getPreferencesObject(jsonRoutingPreferenceText);
+			
+			if(routingPreferences == null) {
+				logger.error("getPreferences: no records found.");
+				throw new RPException("ER05");
+			}
+			return routingPreferences.getData();
+		} catch(RPException rpe) {
+			return rpe.returnErrorString();
+		} catch(Exception e) {
+			RPException rpe = new RPException("ER01");
+			logger.error("getPreferences service: unhandled error "+rpe.returnErrorString());
+			return rpe.returnErrorString();
+		}
+	}
+	
+	public String deletePreferences(String jsonRoutingPreferenceText) {
+		try {
+			String queryText = "'userId' = '"+getUserIdFromJsonText(jsonRoutingPreferenceText)+"'";
+			String query = createQuery(queryText, "rp_t_preferences2", "data","delete");
+			routingPreferencesDAO.deleteRoutingPreferences(query);
+			return getUserIdFromJsonText(jsonRoutingPreferenceText);
+		} catch(RPException rpe) {
+			return rpe.returnErrorString();
+		} catch(Exception e) {
+			RPException rpe = new RPException("ER01");
+			logger.error("deletePreferences service: unhandled error "+rpe.returnErrorString());
+			return rpe.returnErrorString();
+		}
+	}
+	
+	private RoutingPreferences getPreferencesObject(String jsonRoutingPreferenceText) throws RPException {
+		
+		try {
+			String queryText = "'userId' = '"+getUserIdFromJsonText(jsonRoutingPreferenceText)+"'";
+			String query = createQuery(queryText, "rp_t_preferences2", "data","select");
+			List<RoutingPreferences> routingPreferences = routingPreferencesDAO.getRoutingPreferences(query);
+			
+			if(routingPreferences.isEmpty()) {
+				return null;
+			}
+			//research query can only find 1 record at most
+			return routingPreferences.get(0);
+		} catch(RPException rpe) {
+			throw rpe;
+		} catch(Exception e) {
+			logger.error("saveOrUpdatePreferences service: unhandled error: ");
+			throw new RPException("ER01");
+		}
+	}
+	
+	private String getUserIdFromJsonText(String jsonRoutingPreferenceText) throws JsonParseException, JsonMappingException, IOException {
+		//PreferenceObject preferenceObject = om.readValue(jsonRoutingPreferenceText, PreferenceObject.class);
+		//return preferenceObject.getUserId();
+		JsonNode rootNode = om.readTree(jsonRoutingPreferenceText);
+		return rootNode.findValue("userId").toString();
+	}
+	
+	/**
+	 * Creates the actual research query from the semplified input string given by the user.
+	 * 
+	 * @param text
+	 * @return
+	 */
+	private String createQuery(String text,String tableName,String columnName,String mode) {
+		String query = "";
+		if("delete".equalsIgnoreCase(mode)) {
+			query += "delete from ";
+		} else if("select".equalsIgnoreCase(mode)) {
+			query += "select * from ";
+		}
+		query += tableName+" where ";
+		
+		try {
+			String[] pieces = text.split("AND|OR");
+			for(int i=0; i<pieces.length; i++) {
+				int lastPieceElement = pieces[i].lastIndexOf("/");
+				int firstBracketIndex = pieces[i].indexOf("(");
+
+				String oldPiece = pieces[i];
+				
+				if(lastPieceElement != -1) {
+					pieces[i] = pieces[i].substring(0,lastPieceElement).trim()+"->>"+pieces[i].substring(lastPieceElement+1).trim()+" ";
+					if(firstBracketIndex != -1) {
+						pieces[i] = pieces[i].substring(0,firstBracketIndex).trim()+" "+columnName+"->"+pieces[i].substring(firstBracketIndex).trim()+" ";
+					} else {
+						pieces[i] = " "+columnName+"->"+pieces[i].trim()+" ";
+					}
+				} else {
+					if(firstBracketIndex != -1) {
+						pieces[i] = pieces[i].substring(0,firstBracketIndex).trim()+" "+columnName+"->>"+pieces[i].substring(firstBracketIndex).trim()+" ";
+					} else {
+						pieces[i] = " "+columnName+"->>"+pieces[i].trim()+" ";
+					}
+				}
+				pieces[i] = pieces[i].replace("/", "->");
+				text = StringUtils.replace(text,oldPiece,pieces[i]);
+			}
+			query += text;
+			logger.info("transofrmed query:"+ query);
+			return query; 
+		} catch(Exception e) {
+			logger.error("Error",e);
+			logger.error("Error in the research query: research queries must follow the following format: 'jsonNode'/'jsonChildNode'/.../'jsonRequestedNode' = 'requestedValue'");
+			return null;
+		}
+	}
+}

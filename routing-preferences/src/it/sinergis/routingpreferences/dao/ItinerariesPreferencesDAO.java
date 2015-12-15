@@ -11,4 +11,6 @@ public interface ItinerariesPreferencesDAO {
 	
 	List<ItinerariesPreferences> readItinerary(String query) throws Exception;
 
+	//void deleteItineraries(String queryText) throws Exception;
+
 }

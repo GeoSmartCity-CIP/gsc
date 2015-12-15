@@ -5,12 +5,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
+import org.apache.log4j.Logger;
+
 public class PropertyReader {
 
 	InputStream inputStream;
 	Properties prop;
 	
-	public PropertyReader(String propFileName) throws IOException {
+	/** Logger. */
+	private static Logger logger;
+	
+	public PropertyReader(String propFileName) {
+		logger = Logger.getLogger(this.getClass());
 		try {
 			prop = new Properties();
  
@@ -24,7 +30,11 @@ public class PropertyReader {
 		} catch (Exception e) {
 			System.out.println("Exception: " + e);
 		} finally {
-			inputStream.close();
+			try {
+				inputStream.close();
+			} catch(IOException e) {
+				logger.error("error while reading error messages property file");
+			}
 		}
 	}
 	
