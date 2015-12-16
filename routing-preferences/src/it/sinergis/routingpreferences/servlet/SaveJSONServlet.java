@@ -29,9 +29,8 @@ public class SaveJSONServlet extends HttpServlet {
 	public void doGet(HttpServletRequest req, HttpServletResponse res)
 			throws ServletException, IOException {
 		doPost(req, res);
-
 	}
-	
+
 	public void doPost(HttpServletRequest request, HttpServletResponse response)
 			throws ServletException, IOException {
 		request.setCharacterEncoding("UTF-8");
@@ -41,7 +40,7 @@ public class SaveJSONServlet extends HttpServlet {
 		String itineraryId = request.getParameter("itineraryId");
 		String notes = request.getParameter("notes");
 		
-		if(servizio.equalsIgnoreCase("save")) {
+		if(servizio.equalsIgnoreCase("saveItinerary")) {
 			logger.info(testo);
 			try {
 				ItineraryPreferencesService itineraryPreferencesService = new ItineraryPreferencesService();
@@ -54,7 +53,7 @@ public class SaveJSONServlet extends HttpServlet {
 				request.setAttribute("responseJSON", rpe.returnErrorString());
 			}
 			
-		} else if(servizio.equalsIgnoreCase("read")) {
+		} else if(servizio.equalsIgnoreCase("getItinerary")) {
 			logger.info(testo);
 			try {
 				ItineraryPreferencesService itineraryPreferencesService = new ItineraryPreferencesService();
@@ -66,7 +65,19 @@ public class SaveJSONServlet extends HttpServlet {
 				RPException rpe = new RPException("ER01");
 				request.setAttribute("responseJSON", rpe.returnErrorString());
 			}
-		} else if(servizio.equalsIgnoreCase("saveOrUpdatePreferences")) {
+		} else if(servizio.equalsIgnoreCase("deleteItinerary")) {
+			logger.info(testo);
+			try {
+				ItineraryPreferencesService itineraryPreferencesService = new ItineraryPreferencesService();
+				String responseJSON = itineraryPreferencesService.deleteItinerary(Long.valueOf(itineraryId));
+				
+				request.setAttribute("responseJSON", responseJSON);
+			} catch(Exception e) {
+				logger.error("Generic error while retrieving routing preferences",e);
+				RPException rpe = new RPException("ER01");
+				request.setAttribute("responseJSON", rpe.returnErrorString());
+			}
+		}else if(servizio.equalsIgnoreCase("saveOrUpdatePreferences")) {
 			logger.info(testo);
 			try {
 				RoutingPreferencesService routingPreferencesService = new RoutingPreferencesService();

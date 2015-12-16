@@ -1,20 +1,13 @@
 package it.sinergis.routingpreferences;
 
-import java.io.IOException;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
-import it.sinergis.routingpreferences.dao.DAOFactory;
 import it.sinergis.routingpreferences.dao.RoutingPreferencesDAO;
 import it.sinergis.routingpreferences.exception.RPException;
-import it.sinergis.routingpreferences.jpadao.JpaDAOFactory;
 import it.sinergis.routingpreferences.model.RoutingPreferences;
 
 /***
@@ -23,93 +16,136 @@ import it.sinergis.routingpreferences.model.RoutingPreferences;
  * @author Lorenzo Longhitano
  * 
  */
-public class RoutingPreferencesService {
+public class RoutingPreferencesService extends ServiceCommons {
 
 	/** Logger. */
 	private static Logger logger;
-	
-	/** DAO factory. */
-	DAOFactory daoFactory;
-	
-	/** RoutingPreferences DAO. */
-	RoutingPreferencesDAO routingPreferencesDAO;
-	
-	/** Jackson object mapper. */
-	ObjectMapper om;
 
+	/** RoutingPreferences DAO. */
+	RoutingPreferencesDAO routingPreferencesDAO;;
+
+	public final String ROUTING_TABLE_NAME = "rp_t_preferences2";
+	public final String ROUTING_COLUMN_NAME = "data";
 	
 	public RoutingPreferencesService() {
 		logger = Logger.getLogger(this.getClass());
-		daoFactory = new JpaDAOFactory();
 		routingPreferencesDAO = daoFactory.getRoutingPreferencesDAO();
-		om = new ObjectMapper();
 	}
 	
+	/**
+	 * Saves a json preference string. Users can insert all the preferences they like, as long as those are presented as json. 
+	 * The only mandatory parameter is "userId" that has to be included in the json. 
+	 * If the user identified by "userId" has already saved a preference, the old preference will be replaced.
+	 * 
+	 * @param jsonRoutingPreferenceText the preferences parameters as json text.
+	 * @return a json string containing the id of the user that is saving the preferences if the operation succeeded or an error otherwise.
+	 */
 	public String saveOrUpdatePreferences(String jsonRoutingPreferenceText) {
 
 		try {
+			checkJsonWellFormed(jsonRoutingPreferenceText);
+			
 			//check if there's another preference already saved for the same userId
 			RoutingPreferences routingPreferences = getPreferencesObject(jsonRoutingPreferenceText);
 				
 			//if no results found -> add new record
 			if(routingPreferences == null) {
 				routingPreferencesDAO.insertRoutingPreferences(jsonRoutingPreferenceText);
-				return getUserIdFromJsonText(jsonRoutingPreferenceText);
+				
+				logger.info("Preferences succesfully saved");
+				logger.info(jsonRoutingPreferenceText);
+				
+				return jsonifyResult("userId",getUserIdFromJsonText(jsonRoutingPreferenceText));
 			//otherwise update current record
 			} else {
 				String queryText = "'userId' = '"+getUserIdFromJsonText(jsonRoutingPreferenceText)+"'";
-				routingPreferencesDAO.updateRoutingPreferences(jsonRoutingPreferenceText,createQuery(queryText, "rp_t_preferences2", "data","delete"));
-				
-				//return id
-				return getUserIdFromJsonText(jsonRoutingPreferenceText);
+				routingPreferencesDAO.updateRoutingPreferences(jsonRoutingPreferenceText,createQuery(queryText,ROUTING_TABLE_NAME,ROUTING_COLUMN_NAME,"delete"));
+
+				logger.info("Preferences succesfully updated");
+				logger.info(jsonRoutingPreferenceText);
+				return jsonifyResult("userId",getUserIdFromJsonText(jsonRoutingPreferenceText));
 			}
 		} catch(RPException rpe) {
 			return rpe.returnErrorString();
 		} catch(Exception e) {
+			logger.error("save/update preferences service error",e);
 			RPException rpe = new RPException("ER01");
 			logger.error("saveOrUpdatePreferences service: unhandled error "+rpe.returnErrorString());
 			return rpe.returnErrorString();
 		}
 	}
 	
+	/**
+	 * Get the preferences saved for the given user.
+	 * 
+	 * @param jsonRoutingPreferenceText a json text containing the "userId" field.
+	 * @return a json string containing the preferences for the specified user if the operation succeeded or an error otherwise.
+	 */
 	public String getPreferences(String jsonRoutingPreferenceText) {
 		try {
+			
+			checkJsonWellFormed(jsonRoutingPreferenceText);
+			
 			RoutingPreferences routingPreferences = getPreferencesObject(jsonRoutingPreferenceText);
 			
 			if(routingPreferences == null) {
 				logger.error("getPreferences: no records found.");
 				throw new RPException("ER05");
 			}
+			logger.info("Preferences succesfully retrieved");
+			logger.info(routingPreferences.getData());
+			
 			return routingPreferences.getData();
 		} catch(RPException rpe) {
 			return rpe.returnErrorString();
 		} catch(Exception e) {
+			logger.error("Get preferences service error",e);
 			RPException rpe = new RPException("ER01");
 			logger.error("getPreferences service: unhandled error "+rpe.returnErrorString());
 			return rpe.returnErrorString();
 		}
 	}
 	
+	/**
+	 * Delete the preferences for a given user
+	 * 
+	 * @param jsonRoutingPreferenceText jsonRoutingPreferenceText a json text containing the "userId" field.
+	 * @return a json string containing the id of the user that is deleting the preferences if the operation succeeded or an error otherwise.
+	 */
 	public String deletePreferences(String jsonRoutingPreferenceText) {
 		try {
+			
+			checkJsonWellFormed(jsonRoutingPreferenceText);
+			
 			String queryText = "'userId' = '"+getUserIdFromJsonText(jsonRoutingPreferenceText)+"'";
-			String query = createQuery(queryText, "rp_t_preferences2", "data","delete");
+			String query = createQuery(queryText, ROUTING_TABLE_NAME,ROUTING_COLUMN_NAME,"delete");
 			routingPreferencesDAO.deleteRoutingPreferences(query);
-			return getUserIdFromJsonText(jsonRoutingPreferenceText);
+			
+			logger.info("Preferences for userId="+getUserIdFromJsonText(jsonRoutingPreferenceText)+"succesfully deleted");
+			
+			return jsonifyResult("userId",getUserIdFromJsonText(jsonRoutingPreferenceText));
 		} catch(RPException rpe) {
 			return rpe.returnErrorString();
 		} catch(Exception e) {
+			logger.error(" preferences service error",e);
 			RPException rpe = new RPException("ER01");
 			logger.error("deletePreferences service: unhandled error "+rpe.returnErrorString());
 			return rpe.returnErrorString();
 		}
 	}
 	
+	/**
+	 * Retrieves the preferences given a userId.
+	 * 
+	 * @param jsonRoutingPreferenceText
+	 * @return
+	 * @throws RPException
+	 */
 	private RoutingPreferences getPreferencesObject(String jsonRoutingPreferenceText) throws RPException {
 		
 		try {
 			String queryText = "'userId' = '"+getUserIdFromJsonText(jsonRoutingPreferenceText)+"'";
-			String query = createQuery(queryText, "rp_t_preferences2", "data","select");
+			String query = createQuery(queryText, ROUTING_TABLE_NAME,ROUTING_COLUMN_NAME,"select");
 			List<RoutingPreferences> routingPreferences = routingPreferencesDAO.getRoutingPreferences(query);
 			
 			if(routingPreferences.isEmpty()) {
@@ -120,65 +156,32 @@ public class RoutingPreferencesService {
 		} catch(RPException rpe) {
 			throw rpe;
 		} catch(Exception e) {
-			logger.error("saveOrUpdatePreferences service: unhandled error: ");
+			logger.error("unhandled error: ",e);
 			throw new RPException("ER01");
 		}
 	}
 	
-	private String getUserIdFromJsonText(String jsonRoutingPreferenceText) throws JsonParseException, JsonMappingException, IOException {
-		//PreferenceObject preferenceObject = om.readValue(jsonRoutingPreferenceText, PreferenceObject.class);
-		//return preferenceObject.getUserId();
-		JsonNode rootNode = om.readTree(jsonRoutingPreferenceText);
-		return rootNode.findValue("userId").toString();
-	}
-	
 	/**
-	 * Creates the actual research query from the semplified input string given by the user.
+	 * Returns userId within the input json text parameter.
 	 * 
-	 * @param text
+	 * @param jsonRoutingPreferenceText
 	 * @return
+	 * @throws RPException
 	 */
-	private String createQuery(String text,String tableName,String columnName,String mode) {
-		String query = "";
-		if("delete".equalsIgnoreCase(mode)) {
-			query += "delete from ";
-		} else if("select".equalsIgnoreCase(mode)) {
-			query += "select * from ";
-		}
-		query += tableName+" where ";
-		
+	private String getUserIdFromJsonText(String jsonRoutingPreferenceText) throws RPException {
 		try {
-			String[] pieces = text.split("AND|OR");
-			for(int i=0; i<pieces.length; i++) {
-				int lastPieceElement = pieces[i].lastIndexOf("/");
-				int firstBracketIndex = pieces[i].indexOf("(");
-
-				String oldPiece = pieces[i];
-				
-				if(lastPieceElement != -1) {
-					pieces[i] = pieces[i].substring(0,lastPieceElement).trim()+"->>"+pieces[i].substring(lastPieceElement+1).trim()+" ";
-					if(firstBracketIndex != -1) {
-						pieces[i] = pieces[i].substring(0,firstBracketIndex).trim()+" "+columnName+"->"+pieces[i].substring(firstBracketIndex).trim()+" ";
-					} else {
-						pieces[i] = " "+columnName+"->"+pieces[i].trim()+" ";
-					}
-				} else {
-					if(firstBracketIndex != -1) {
-						pieces[i] = pieces[i].substring(0,firstBracketIndex).trim()+" "+columnName+"->>"+pieces[i].substring(firstBracketIndex).trim()+" ";
-					} else {
-						pieces[i] = " "+columnName+"->>"+pieces[i].trim()+" ";
-					}
-				}
-				pieces[i] = pieces[i].replace("/", "->");
-				text = StringUtils.replace(text,oldPiece,pieces[i]);
+			JsonNode rootNode = om.readTree(jsonRoutingPreferenceText);
+			JsonNode idValue = rootNode.findValue("userId");
+			if(idValue == null) {
+				logger.error("userId parameter is mandatory within the json string.");
+				throw new RPException("ER04");
 			}
-			query += text;
-			logger.info("transofrmed query:"+ query);
-			return query; 
+			return idValue.toString();
+		} catch(RPException rpe) {
+			throw rpe;
 		} catch(Exception e) {
-			logger.error("Error",e);
-			logger.error("Error in the research query: research queries must follow the following format: 'jsonNode'/'jsonChildNode'/.../'jsonRequestedNode' = 'requestedValue'");
-			return null;
+			logger.error("unhandled error: ",e);
+			throw new RPException("ER01");
 		}
 	}
 }

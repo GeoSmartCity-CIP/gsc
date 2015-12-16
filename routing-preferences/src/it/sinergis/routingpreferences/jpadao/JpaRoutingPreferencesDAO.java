@@ -30,6 +30,9 @@ public class JpaRoutingPreferencesDAO extends AbstractJpaDAO implements RoutingP
 		
 	}
 
+	/* (non-Javadoc)
+	 * @see it.sinergis.routingpreferences.dao.RoutingPreferencesDAO#updateRoutingPreferences(java.lang.String, java.lang.String)
+	 */
 	@Override
 	public void updateRoutingPreferences(String jsonText,String queryText)
 			throws RPException {
@@ -51,7 +54,7 @@ public class JpaRoutingPreferencesDAO extends AbstractJpaDAO implements RoutingP
 			em.getTransaction().commit();				
 		}
 		catch(Exception ex) {
-			if(em != null)
+			if(em != null && em.getTransaction() != null && em.getTransaction().isActive())
 				em.getTransaction().rollback();
 			
 			logger.error("update routingpreferences error", ex);
@@ -63,6 +66,9 @@ public class JpaRoutingPreferencesDAO extends AbstractJpaDAO implements RoutingP
 		}
 		
 	}
+	/* (non-Javadoc)
+	 * @see it.sinergis.routingpreferences.dao.RoutingPreferencesDAO#insertRoutingPreferences(java.lang.String)
+	 */
 	@Override
 	public void insertRoutingPreferences(String jsonText)
 			throws RPException {
@@ -81,10 +87,10 @@ public class JpaRoutingPreferencesDAO extends AbstractJpaDAO implements RoutingP
 			em.getTransaction().commit();				
 		}
 		catch(Exception ex) {
-			if(em != null)
+			if(em != null && em.getTransaction() != null && em.getTransaction().isActive())
 				em.getTransaction().rollback();
 			
-			logger.error("save routingpreferences error", ex);
+			logger.error("Save routing preferences error", ex);
 			throw new RPException("ER01");
 		}
 		finally {
@@ -94,6 +100,9 @@ public class JpaRoutingPreferencesDAO extends AbstractJpaDAO implements RoutingP
 		
 	}
 
+	/* (non-Javadoc)
+	 * @see it.sinergis.routingpreferences.dao.RoutingPreferencesDAO#getRoutingPreferences(java.lang.String)
+	 */
 	@Override
 	public List<RoutingPreferences> getRoutingPreferences(String queryText)
 			throws RPException {
@@ -107,10 +116,10 @@ public class JpaRoutingPreferencesDAO extends AbstractJpaDAO implements RoutingP
 			return resultList;			
 		}
 		catch(Exception ex) {
-			if(em != null)
+			if(em != null && em.getTransaction() != null && em.getTransaction().isActive())
 				em.getTransaction().rollback();
 			
-			logger.error("get routingpreference error", ex);
+			logger.error("Get routingpreference error", ex);
 			throw new RPException("ER01");
 		}
 		finally {
@@ -119,6 +128,9 @@ public class JpaRoutingPreferencesDAO extends AbstractJpaDAO implements RoutingP
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see it.sinergis.routingpreferences.dao.RoutingPreferencesDAO#deleteRoutingPreferences(java.lang.String)
+	 */
 	@Override
 	public void deleteRoutingPreferences(String queryText)
 			throws RPException {
@@ -140,13 +152,13 @@ public class JpaRoutingPreferencesDAO extends AbstractJpaDAO implements RoutingP
 			em.getTransaction().commit();
 			
 		} catch(Exception ex) {
-			if(em != null)
+			if(em != null && em.getTransaction() != null && em.getTransaction().isActive())
 				em.getTransaction().rollback();
 			
-			logger.error("Delete routing preference error", ex);
 			if(ex instanceof RPException) {
 				throw ex;
 			} else {
+				logger.error("Delete routing preference error", ex);
 				throw new RPException("ER01");
 			}
 		}

@@ -1,19 +1,15 @@
 package it.sinergis.routingpreferences;
 
-import java.io.IOException;
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import it.sinergis.routingpreferences.dao.DAOFactory;
 import it.sinergis.routingpreferences.dao.ItinerariesPreferencesDAO;
 import it.sinergis.routingpreferences.exception.RPException;
-import it.sinergis.routingpreferences.jpadao.JpaDAOFactory;
 import it.sinergis.routingpreferences.model.ItinerariesPreferences;
 
 /***
@@ -22,46 +18,73 @@ import it.sinergis.routingpreferences.model.ItinerariesPreferences;
  * @author Lorenzo Longhitano
  * 
  */
-public class ItineraryPreferencesService {
+public class ItineraryPreferencesService extends ServiceCommons {
 
 	/** Logger. */
 	private static Logger logger;
 	
-	/** DAO factory. */
-	DAOFactory daoFactory;
 	
 	/** ItinerariesPreferences DAO. */
 	ItinerariesPreferencesDAO itinerariesPreferencesDAO;
 	
-	/** Jackson object mapper. */
-	ObjectMapper om;
-
+	
+	
+	public final String ITINERARY_TABLE_NAME = "rp_t_itineraries2";
+	public final String ITINERARY_COLUMN_NAME = "data";
 	
 	public ItineraryPreferencesService() {
-		logger = Logger.getLogger(this.getClass());
-		daoFactory = new JpaDAOFactory();
+		logger = Logger.getLogger(this.getClass());	
 		itinerariesPreferencesDAO = daoFactory.getItinerariesPreferencesDAO();
-		om = new ObjectMapper();
 	}
 	
+	/**
+	 * Saves an itinerary.
+	 * 
+	 * @param jsonItineraryPreferenceText this parameter has to be a json response returned by the opentripplanner services.
+	 * @param userId the userId that is logged and who is saving the itinerary.
+	 * @param itineraryId represents the index of the selected itinerary that has to be saved among all the itineraries avaliable in the opentripplanner response json.
+	 * @param notes additional notes to save within the json.
+	 * 
+	 * @return a json string containing the id of the newly created itinerary if the operation succeeded or an error otherwise.
+	 */
 	public String saveItinerary(String jsonItineraryPreferenceText,String userId,String itineraryId,String notes) {		
 		try {
+			checkJsonWellFormed(jsonItineraryPreferenceText);
+			
 			String modifiedJSON = adjustJSON(jsonItineraryPreferenceText,userId,itineraryId,notes);
-			daoFactory.getItinerariesPreferencesDAO().saveItinerary(modifiedJSON);
-			return modifiedJSON;
+			Long persistedItineraryId = daoFactory.getItinerariesPreferencesDAO().saveItinerary(modifiedJSON);
+			return jsonifyResult("itineraryId",persistedItineraryId.toString());
 			
 		} catch(RPException rpe) {
 			return rpe.returnErrorString();
 		} catch(Exception e) {
+			logger.error("Save itineraries service error",e);
 			RPException rpe = new RPException("ER01");
 			logger.error("saveItinerary service: unhandled error "+rpe.returnErrorString());
 			return rpe.returnErrorString();
 		}
 	}
 	
+	/**
+	 * Returns all the saved itineraries matching with the given query.
+	 * 
+	 * @param jsonItineraryPreferenceText The research query.
+	 * 				Must follow the following syntax:
+	 * 				-	from the json root node type all the names of all the json nodes of the json tree until you reach the desired element.
+	 * 				-   each element must be quoted (')
+	 * 				-   each element must be divided from the following elements by a '/'
+	 * 				-   all operators allowed in the PSQL database are still legal.
+	 * 
+	 * 				E.g.: 'itineraries'/'duration' = '9999' 
+	 * 						implies that one of the json root direct descendants is called "itinerary" and
+	 * 						that "itinerary" has a direct discendant called "duration". 
+	 * 				
+	 * @return a json string containing the list of all the itineraries matching the given query. Each of those is inserted in a wider json that 
+	 * 				has "json" as the root element, and contains a list of the found itineraries.
+	 */
 	public String getItineraries(String jsonItineraryPreferenceText) {
 		try {
-			String query = createQuery(jsonItineraryPreferenceText,"rp_t_itineraries","data","select");
+			String query = createQuery(jsonItineraryPreferenceText,ITINERARY_TABLE_NAME,ITINERARY_COLUMN_NAME,"select");
 			StringBuilder sb = new StringBuilder();
 			if(query == null) {
 				throw new RPException("ER03");
@@ -71,91 +94,59 @@ public class ItineraryPreferencesService {
 				logger.error("getItineraries: no records found.");
 				throw new RPException("ER05");
 			} else {	
-				sb.append("{json:[");
+				logger.info(ipList.size()+" itineraries found.");	
+				sb.append("{\"json\":[");
 				for(int i = 0; i< ipList.size(); i++) {
 					if(i != 0) {
 						sb.append(",");
 					}
+					logger.info(ipList.get(i).getData());
 					sb.append(cleanData(ipList.get(i).getData()));
 				}
 				sb.append("]}");
 			}
-				
 			return sb.toString();
 		} catch(RPException rpe) {
 			return rpe.returnErrorString();
 		} catch(Exception e) {
+			logger.error("Get Itineraries service error",e);
 			RPException rpe = new RPException("ER01");
 			logger.error("getItineraries service: unhandled error "+rpe.returnErrorString());
 			return rpe.returnErrorString();
 		}
 	}
 	
-//	public String deleteItineraries(String jsonItinerariesPreferenceText) {
-//		try {
-//			String queryText = "'userId' = '"+getUserIdFromJsonText(jsonItinerariesPreferenceText)+"'";
-//			String query = createQuery(queryText, "rp_t_itineraries", "data","delete");
-//			itinerariesPreferencesDAO.deleteItineraries(query);
-//			return getUserIdFromJsonText(jsonItinerariesPreferenceText);
-//		} catch(RPException rpe) {
-//			return rpe.returnErrorString();
-//		} catch(Exception e) {
-//			RPException rpe = new RPException("ER01");
-//			logger.error("deleteItinerary service: unhandled error "+rpe.returnErrorString());
-//			return rpe.returnErrorString();
-//		}
-//	}
-	
 	/**
-	 * Creates the actual research query from the semplified input string given by the user.
+	 * Delete an itinerary given its id
 	 * 
-	 * @param text
-	 * @return
+	 * @param id The itinerary id in the itineraries table.
+	 * @return a json string containing the id of the deleted itinerary if the operation succeeded or an error otherwise.
 	 */
-	private String createQuery(String text,String tableName,String columnName,String mode) {
-		String query = "";
-		if("delete".equalsIgnoreCase(mode)) {
-			query += "delete from ";
-		} else if("select".equalsIgnoreCase(mode)) {
-			query += "select * from ";
-		}
-		query += tableName+" where ";
-		
+	public String deleteItinerary(Long id) {
 		try {
-			String[] pieces = text.split("AND|OR");
-			for(int i=0; i<pieces.length; i++) {
-				int lastPieceElement = pieces[i].lastIndexOf("/");
-				int firstBracketIndex = pieces[i].indexOf("(");
-
-				String oldPiece = pieces[i];
-				
-				if(lastPieceElement != -1) {
-					pieces[i] = pieces[i].substring(0,lastPieceElement).trim()+"->>"+pieces[i].substring(lastPieceElement+1).trim()+" ";
-					if(firstBracketIndex != -1) {
-						pieces[i] = pieces[i].substring(0,firstBracketIndex).trim()+" "+columnName+"->"+pieces[i].substring(firstBracketIndex).trim()+" ";
-					} else {
-						pieces[i] = " "+columnName+"->"+pieces[i].trim()+" ";
-					}
-				} else {
-					if(firstBracketIndex != -1) {
-						pieces[i] = pieces[i].substring(0,firstBracketIndex).trim()+" "+columnName+"->>"+pieces[i].substring(firstBracketIndex).trim()+" ";
-					} else {
-						pieces[i] = " "+columnName+"->>"+pieces[i].trim()+" ";
-					}
-				}
-				pieces[i] = pieces[i].replace("/", "->");
-				text = StringUtils.replace(text,oldPiece,pieces[i]);
-			}
-			query += text;
-			logger.info("transofrmed query:"+ query);
-			return query; 
+			itinerariesPreferencesDAO.deleteItineraryById(id);
+			logger.info("Itinerary "+id+" succesfully deleted.");
+			return jsonifyResult("itineraryId", id.toString());
+		} catch(RPException rpe) {
+			return rpe.returnErrorString();
 		} catch(Exception e) {
-			logger.error("Error",e);
-			logger.error("Error in the research query: research queries must follow the following format: 'jsonNode'/'jsonChildNode'/.../'jsonRequestedNode' = 'requestedValue'");
-			return null;
+			logger.error("Delete itineraries service error",e);
+			RPException rpe = new RPException("ER01");
+			logger.error("deleteItinerary service: unhandled error "+rpe.returnErrorString());
+			return rpe.returnErrorString();
 		}
 	}
 	
+	/**
+	 * Adds userId and notes within the jsonText. Deletes all itineraries of the plan that don't match the given index.
+	 * 
+	 * @param testo
+	 * @param userId
+	 * @param itineraryId
+	 * @param notes
+	 * @return
+	 * @throws RPException
+	 */
 	private String adjustJSON(String testo, String userId, String itineraryId,
 			String notes) throws RPException {
 		try {
@@ -183,6 +174,10 @@ public class ItineraryPreferencesService {
 				jsonTreeRootObject.put("notes", notes);
 				if(jsonValue.isArray()) {
 					JsonNode selectedItinerary = jsonValue.get(Integer.parseInt(itineraryId) -1);
+					if(selectedItinerary == null) {
+						logger.error("cannot save without one itinerary within the json string. Check if the chosen itineraryId is valid.");
+						throw new RPException("ER08");
+					}
 					ObjectNode itinerariesParent = jsonTreeRootObject.findParent("itineraries");
 					itinerariesParent.replace("itineraries",selectedItinerary);
 				}
@@ -193,12 +188,19 @@ public class ItineraryPreferencesService {
 		} catch(RPException rpe) {
 			throw rpe;
 		} catch(Exception e) {
-			logger.error("saveOrUpdatePreferences service: unhandled error: ");
+			logger.error("Save itineraries service error",e);
 			throw new RPException("ER01");
 		}
 	}
 	
-	private String cleanData(String jsonDataRetrieved) {
+	/**
+	 * Removes the notes and the userId field that were artificially added to the json in the saving process. This happens as a final step to the getItineraries method.
+	 * 
+	 * @param jsonDataRetrieved
+	 * @return
+	 * @throws RPException
+	 */
+	private String cleanData(String jsonDataRetrieved) throws RPException {
 		ObjectMapper mapper = new ObjectMapper();
 		ObjectNode jsonTreeRootObject = null;
 		
@@ -211,10 +213,9 @@ public class ItineraryPreferencesService {
 				jsonTreeRootObject.remove("notes");
 			}
 			return mapper.writeValueAsString(jsonTreeRootObject);
-		} catch (IOException e) {
-			logger.error("Error",e);
-			logger.error(e.getMessage());
-			return null;
-		}	
+		} catch(Exception e) {
+			logger.error("Get itineraries service error",e);
+			throw new RPException("ER01");
+		}
 	}
 }

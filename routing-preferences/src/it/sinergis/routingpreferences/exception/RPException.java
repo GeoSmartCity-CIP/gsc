@@ -20,8 +20,13 @@ public class RPException extends Exception {
 		this.setErrorMessage(pr.getValue(errorCode));	
 	}
 	
+	/**
+	 * Returns an error as json in the following format: {"error":{"errorCode":"???","errorDescription":"???"}}
+	 * 
+	 * @return
+	 */
 	public String returnErrorString() {
-		return "An exception has occurred: "+this.getErrorMessage() +"("+this.getErrorCode()+")";
+		return "{\"error\":{\"errorCode\":\""+this.getErrorCode()+"\",\"errorDescription\":\""+this.getErrorMessage()+"\"}}";
 	}
 
 	public String getErrorCode() {

@@ -9,12 +9,13 @@
 <title>Pagina di Test</title>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
 <script>
+	
 	function showFields() {
 	    var select = document.getElementById("servizioSelect");
 	    if(select) {
 		    var selected = select.options[select.selectedIndex].value;
 		    
-		    if(selected === 'save'){
+		    if(selected === 'saveItinerary'){
 		    	document.getElementById("text").style.display = "table-row";
 		    	document.getElementById("userId").style.display = "table-row";
 		    	document.getElementById("itineraryId").style.display = "table-row";
@@ -33,7 +34,7 @@
 		    	document.getElementById("itineraryIdArea").value = "1";
 		    	
 		    	
-		    } else if(selected === 'read'){
+		    } else if(selected === 'getItinerary'){
 		    	document.getElementById("text").style.display = "table-row";
 		    	document.getElementById("userId").style.display = "none";
 		    	document.getElementById("itineraryId").style.display = "none";
@@ -41,6 +42,15 @@
 		    	
 		    	document.getElementById("textArea").title = "Insert a research query.";
 		    	document.getElementById("textArea").value = document.getElementById("hiddenQueryExample").value;
+		    	
+		    } else if(selected === 'deleteItinerary'){
+		    	document.getElementById("text").style.display = "none";
+		    	document.getElementById("userId").style.display = "none";
+		    	document.getElementById("itineraryId").style.display = "table-row";
+		    	document.getElementById("notes").style.display = "none";
+		    	
+		    	document.getElementById("itineraryIdArea").title = "Insert the itinerary id.";
+		    	document.getElementById("itineraryIdArea").value = "1";
 		    	
 		    } else if(selected === 'saveOrUpdatePreferences'){
 		    	document.getElementById("text").style.display = "table-row";
@@ -66,6 +76,8 @@
 		    }
 	    	document.getElementById("submitButton").style.display = "table-row";
 	    	document.getElementById("response").style.display = "table-row";
+	    	
+	    	document.getElementById('responseJSONId').value = JSON.stringify(JSON.parse(document.getElementById('responseJSONId').value), null, 2);
 	    }
 	};
 </script>
@@ -106,8 +118,9 @@ if (servizio==null) {
 		<td>Service</td>
 		<td><select name="servizio" id="servizioSelect" onchange="showFields()">
 			<option value="ChooseService" >Choose service...</option>
-			<option value="save" <%= servizio.equals("save") ? "selected=\"selected\"" : ""%>>Save itinerary</option>
-			<option value="read" <%= servizio.equals("read") ? "selected=\"selected\"" : ""%>>Read itinerary</option>
+			<option value="saveItinerary" <%= servizio.equals("saveItinerary") ? "selected=\"selected\"" : ""%>>Save itinerary</option>
+			<option value="getItinerary" <%= servizio.equals("getItinerary") ? "selected=\"selected\"" : ""%>>Get itinerary</option>
+			<option value="deleteItinerary" <%= servizio.equals("deleteItinerary") ? "selected=\"selected\"" : ""%>>Delete itinerary</option>
 			<option value="saveOrUpdatePreferences" <%= servizio.equals("saveOrUpdatePreferences") ? "selected=\"selected\"" : ""%>>Save/Update preferences</option>
 			<option value="getPreferences" <%= servizio.equals("getPreferences") ? "selected=\"selected\"" : ""%>>Get preferences</option>
 			<option value="deletePreferences" <%= servizio.equals("deletePreferences") ? "selected=\"selected\"" : ""%>>Delete preferences</option>
@@ -142,9 +155,9 @@ if (servizio==null) {
 	</tr>
   	<tr style="display:none" id="response">
 		<td>Response</td>
-		<td><textarea name="responseJSON" cols="120" rows="15"><%
+		<td><pre><textarea name="responseJSON" id="responseJSONId" cols="120" rows="15"><%
 			if (request.getAttribute("responseJSON") != null)
-				out.print(request.getAttribute("responseJSON"));%></textarea></td>
+				out.print(request.getAttribute("responseJSON"));%></textarea></pre></td>
 	</tr> 
 </table>
 <%

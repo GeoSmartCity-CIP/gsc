@@ -24,10 +24,12 @@ private static Logger logger = null;
 		
 	}
 	
-	/**
-	 * Metodo che esegue il salvataggio delle informazioni di una preferenza di routing
+
+	/* (non-Javadoc)
+	 * @see it.sinergis.routingpreferences.dao.ItinerariesPreferencesDAO#saveItinerary(java.lang.String)
 	 */
-	public void saveItinerary(String jsonText) throws RPException {
+	@Override
+	public Long saveItinerary(String jsonText) throws RPException {
 		
 		EntityManager em = null;
 		try {					
@@ -39,13 +41,14 @@ private static Logger logger = null;
 			em.persist(itinerariesPreferences);					
 			em.flush();
 			
-			em.getTransaction().commit();				
+			em.getTransaction().commit();	
+			return itinerariesPreferences.getId();
 		}
 		catch(Exception ex) {
-			if(em != null)
+			if(em != null && em.getTransaction() != null && em.getTransaction().isActive())
 				em.getTransaction().rollback();
 			
-			logger.error("Save itinerary preference error", ex);
+			logger.error("Save itinerarye error", ex);
 			throw new RPException("ER01");
 		}
 		finally {
@@ -54,16 +57,16 @@ private static Logger logger = null;
 		}
 	}
 
+	/* (non-Javadoc)
+	 * @see it.sinergis.routingpreferences.dao.ItinerariesPreferencesDAO#readItinerary(java.lang.String)
+	 */
 	@Override
 	public List<ItinerariesPreferences> readItinerary(String queryText) throws RPException {
 		EntityManager em = null;
 		try {			
-			
 			em = getEntityManager();
-
 			em.getTransaction().begin();
-			
-			//Nuova preferenza
+
 			Query query = em.createNativeQuery(queryText,ItinerariesPreferences.class);					
 			List<ItinerariesPreferences> resultList = (List<ItinerariesPreferences>) query.getResultList();
 
@@ -71,10 +74,10 @@ private static Logger logger = null;
 			
 		}
 		catch(Exception ex) {
-			if(em != null)
+			if(em != null && em.getTransaction() != null && em.getTransaction().isActive())
 				em.getTransaction().rollback();
 			
-			logger.error("Read itinerary preference error", ex);
+			logger.error("Read itinerary error", ex);
 			throw new RPException("ER01");
 		}
 		finally {
@@ -83,36 +86,40 @@ private static Logger logger = null;
 		}
 	}
 	
-//	@Override
-//	public void deleteItineraries(String queryText) throws RPException {
-//		EntityManager em = null;
-//		try {			
-//			
-//			em = getEntityManager();
-//
-//			em.getTransaction().begin();
-//			
-//			Query query = em.createNativeQuery(queryText,ItinerariesPreferences.class);	
-//			int result = query.executeUpdate();
-//			logger.info(result+" records deleted.");
-//			if(result == 0) {
-//				logger.error("no itineraries preferences found for deletion.");
-//				throw new RPException("ER06");
-//			}
-//			
-//			em.getTransaction().commit();
-//			
-//		}
-//		catch(Exception ex) {
-//			if(em != null)
-//				em.getTransaction().rollback();
-//			
-//			logger.error("Read itinerary preference error", ex);
-//			throw new RPException("ER01");
-//		}
-//		finally {
-//			if (em != null)
-//				em.close();
-//		}
-//	}
+	/* (non-Javadoc)
+	 * @see it.sinergis.routingpreferences.dao.ItinerariesPreferencesDAO#deleteItineraryById(java.lang.Long)
+	 */
+	@Override
+	public void deleteItineraryById(Long id) throws RPException {
+		EntityManager em = null;
+		try {			
+			
+			em = getEntityManager();
+
+			ItinerariesPreferences itinerariesPreferences = em.find(ItinerariesPreferences.class,id);
+			if(itinerariesPreferences != null) {
+				em.getTransaction().begin();
+				em.remove(itinerariesPreferences);
+				em.getTransaction().commit();
+			} else {
+				logger.error("no itineraries found for deletion.");
+				throw new RPException("ER06");
+			}		
+		}
+		catch(Exception ex) {
+			if(em != null && em.getTransaction() != null && em.getTransaction().isActive())
+				em.getTransaction().rollback();
+			
+			if(ex instanceof RPException) {
+				throw ex;
+			} else {
+				logger.error("Delete itinerary error",ex);
+				throw new RPException("ER01");
+			}
+		}
+		finally {
+			if (em != null)
+				em.close();
+		}
+	}
 }
