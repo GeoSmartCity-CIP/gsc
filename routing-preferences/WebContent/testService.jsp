@@ -150,7 +150,7 @@ if (servizio==null) {
 	<tr style="display:none" id="submitButton">
 		<td></td>
 		<td>
-		<INPUT type="submit" value="Invia">
+		<INPUT type="submit" value="Submit">
 		</td>
 	</tr>
   	<tr style="display:none" id="response">

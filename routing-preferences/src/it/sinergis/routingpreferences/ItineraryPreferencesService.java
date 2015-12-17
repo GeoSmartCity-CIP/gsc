@@ -187,6 +187,9 @@ public class ItineraryPreferencesService extends ServiceCommons {
 				
 		} catch(RPException rpe) {
 			throw rpe;
+		} catch(NumberFormatException nfe) {
+			logger.error("cannot save without one itinerary within the json string. Check if the chosen itineraryId is a number.");
+			throw new RPException("ER08");
 		} catch(Exception e) {
 			logger.error("Save itineraries service error",e);
 			throw new RPException("ER01");

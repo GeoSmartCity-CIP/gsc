@@ -77,13 +77,13 @@ public class ServiceCommons {
 				if(lastPieceElement != -1) {
 					pieces[i] = pieces[i].substring(0,lastPieceElement).trim()+"->>"+pieces[i].substring(lastPieceElement+1).trim()+" ";
 					if(firstBracketIndex != -1) {
-						pieces[i] = pieces[i].substring(0,firstBracketIndex).trim()+" "+columnName+"->"+pieces[i].substring(firstBracketIndex).trim()+" ";
+						pieces[i] = " "+pieces[i].substring(0,firstBracketIndex+1).trim()+" "+columnName+"->"+pieces[i].substring(firstBracketIndex+1).trim()+" ";
 					} else {
 						pieces[i] = " "+columnName+"->"+pieces[i].trim()+" ";
 					}
 				} else {
 					if(firstBracketIndex != -1) {
-						pieces[i] = pieces[i].substring(0,firstBracketIndex).trim()+" "+columnName+"->>"+pieces[i].substring(firstBracketIndex).trim()+" ";
+						pieces[i] = " "+pieces[i].substring(0,firstBracketIndex+1).trim()+" "+columnName+"->>"+pieces[i].substring(firstBracketIndex+1).trim()+" ";
 					} else {
 						pieces[i] = " "+columnName+"->>"+pieces[i].trim()+" ";
 					}
@@ -114,7 +114,7 @@ public class ServiceCommons {
 		sb.append("{");
 		for (Map.Entry<String, String> entry : result.entrySet())
 		{
-			sb.append("\""+entry.getKey()+"\":"+entry.getValue()+"\"");
+			sb.append("\""+entry.getKey()+"\":\""+entry.getValue()+"\"");
 			if(result.size() != count) {
 				sb.append(",");
 			}
@@ -134,7 +134,7 @@ public class ServiceCommons {
 	protected String jsonifyResult(String jsonResultName,String jsonResultValue) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("{");
-		sb.append("\""+jsonResultName+"\":"+jsonResultValue+"\"");
+		sb.append("\""+jsonResultName+"\":\""+jsonResultValue+"\"");
 		sb.append("}");
 		return sb.toString();
 	}
