@@ -29,7 +29,7 @@ public class ItineraryPreferencesService extends ServiceCommons {
 	
 	
 	
-	public final String ITINERARY_TABLE_NAME = "rp_t_itineraries2";
+	public final String ITINERARY_TABLE_NAME = "rp_t_itineraries";
 	public final String ITINERARY_COLUMN_NAME = "data";
 	
 	public ItineraryPreferencesService() {

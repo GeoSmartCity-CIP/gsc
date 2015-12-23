@@ -24,7 +24,7 @@ public class RoutingPreferencesService extends ServiceCommons {
 	/** RoutingPreferences DAO. */
 	RoutingPreferencesDAO routingPreferencesDAO;;
 
-	public final String ROUTING_TABLE_NAME = "rp_t_preferences2";
+	public final String ROUTING_TABLE_NAME = "rp_t_preferences";
 	public final String ROUTING_COLUMN_NAME = "data";
 	
 	public RoutingPreferencesService() {

@@ -18,7 +18,7 @@ import org.hibernatespatial.postgis.StringJsonUserType;
  * @author Andrea Di Nora
  */
 @Entity
-@Table(name = "rp_t_preferences2")
+@Table(name = "rp_t_preferences")
 @TypeDefs({ @TypeDef(name = "StringJsonObject", typeClass = StringJsonUserType.class) })
 public class RoutingPreferences implements Serializable{
 	

@@ -16,7 +16,7 @@ import org.hibernate.annotations.TypeDefs;
 import org.hibernatespatial.postgis.StringJsonUserType;
 
 @Entity
-@Table(name = "rp_t_itineraries2")
+@Table(name = "rp_t_itineraries")
 @TypeDefs({ @TypeDef(name = "StringJsonObject", typeClass = StringJsonUserType.class) })
 public class ItinerariesPreferences implements Serializable{
 
