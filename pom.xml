@@ -6,7 +6,7 @@
 	<artifactId>gsc</artifactId>
 	<packaging>pom</packaging>
 	<version>1.0.0</version>
-	<name>mapwork</name>
+	<name>geosmartcity-be</name>
 	<url>http://hub.geosmartcity.eu/</url>
 	<modules>
 		<module>routing-preferences</module>
