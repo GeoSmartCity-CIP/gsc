@@ -5,6 +5,7 @@
 	<artifactId>routing-preferences</artifactId>
 	<version>1.0.0</version>
 	<packaging>war</packaging>
+	
 	<build>
 		<sourceDirectory>src</sourceDirectory>
 		<testSourceDirectory>test</testSourceDirectory>
