@@ -53,9 +53,9 @@
 			<url>http://dev.mapfish.org/maven/repository</url>
 		</repository>	
 		<repository>
-			<id>sun</id>
-			<name>sun</name>
-			<url>http://java.sun.com/products/jta</url>
+			<id>Hibernate</id>
+			<name>Hibernate</name>
+			<url>http://www.hibernatespatial.org/repository</url>
 		</repository>					
 	</repositories>
 	<dependencies>
