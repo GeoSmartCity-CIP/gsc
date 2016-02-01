@@ -36,12 +36,12 @@
 	</build>
 	<repositories>
 		<repository>
-			<id>internal</id>
+			<id>maven2</id>
 			<name>maven2</name> 
 			<url>http://central.maven.org/maven2</url>
 		</repository>	
 		<repository>
-			<id>internal</id>
+			<id>sun</id>
 			<name>sun</name>
 			<url>http://java.sun.com/products/jta</url>
 		</repository>
