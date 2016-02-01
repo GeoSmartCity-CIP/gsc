@@ -51,7 +51,12 @@
 			<id>Mapfish</id>
 			<name>Mapfish</name> 
 			<url>http://dev.mapfish.org/maven/repository</url>
-		</repository>			
+		</repository>	
+		<repository>
+			<id>sun</id>
+			<name>sun</name>
+			<url>http://java.sun.com/products/jta</url>
+		</repository>					
 	</repositories>
 	<dependencies>
 		<dependency>
