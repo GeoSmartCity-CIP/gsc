@@ -37,7 +37,7 @@
 	<repositories>
 		<repository>
 			<id>internal</id>
-			<name>sun</name>
+			<name>sun</name> 
 			<url>http://java.sun.com/products/jta</url>
 		</repository>
 	</repositories>	
