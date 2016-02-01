@@ -57,11 +57,11 @@
 			<name>Mapfish</name> 
 			<url>http://dev.mapfish.org/maven/repository</url>
 		</repository>	
-		<!--repository>
+		<repository>
 			<id>Hibernate</id>
 			<name>Hibernate</name>
 			<url>http://www.hibernatespatial.org/repository</url>
-		</repository-->					
+		</repository>					
 	</repositories>
 	<dependencies>
 		<dependency>
@@ -135,7 +135,7 @@
 			<version>4.11</version>
 			<scope>test</scope>
 		</dependency>
-		<dependency>
+		<!--dependency>
 			<groupId>org.glassfish.gmbal</groupId>
 			<artifactId>gmbal-api-only</artifactId>
 			<version>2.2.7</version>
@@ -149,7 +149,7 @@
 			<groupId>org.glassfish.ha</groupId>
 			<artifactId>ha-api</artifactId>
 			<version>2.2.7</version>
-		</dependency>
+		</dependency-->
 		<dependency>
 			<groupId>com.sun.xml.bind</groupId>
 			<artifactId>jaxb-impl</artifactId>
