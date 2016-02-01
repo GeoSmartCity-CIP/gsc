@@ -57,11 +57,11 @@
 			<name>Mapfish</name> 
 			<url>http://dev.mapfish.org/maven/repository</url>
 		</repository>	
-		<!--repository>
+		<repository>
 			<id>Hibernate</id>
 			<name>Hibernate</name>
 			<url>http://www.hibernatespatial.org/repository</url>
-		</repository-->					
+		</repository>					
 	</repositories>
 	<dependencies>
 		<dependency>
