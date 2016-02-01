@@ -36,9 +36,9 @@
 	</build>
 	<repositories>
 		<repository>
-			<id>archiva.internal.sinergis</id>
-			<name>sun</name> 
-			<url>http://srv11svn.nco.inet:8180/archiva/repository/internal</url>
+			<id>internal</id>
+			<name>maven2</name> 
+			<url>http://central.maven.org/maven2</url>
 		</repository>
 	</repositories>	
 	<dependencies>	
