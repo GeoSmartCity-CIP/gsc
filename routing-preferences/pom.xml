@@ -48,15 +48,20 @@
 			</releases>
 		</repository>
 		<repository>
+			<id>Maven</id>
+			<name>Maven</name>
+			<url>http://repo1.maven.org/maven2</url>
+		</repository>		
+		<repository>
 			<id>Mapfish</id>
 			<name>Mapfish</name> 
 			<url>http://dev.mapfish.org/maven/repository</url>
 		</repository>	
-		<repository>
+		<!--repository>
 			<id>Hibernate</id>
 			<name>Hibernate</name>
 			<url>http://www.hibernatespatial.org/repository</url>
-		</repository>					
+		</repository-->					
 	</repositories>
 	<dependencies>
 		<dependency>
