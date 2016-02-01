@@ -39,6 +39,11 @@
 			<id>internal</id>
 			<name>maven2</name> 
 			<url>http://central.maven.org/maven2</url>
+		</repository>	
+		<repository>
+			<id>internal</id>
+			<name>sun</name>
+			<url>http://java.sun.com/products/jta</url>
 		</repository>
 	</repositories>	
 	<dependencies>	
