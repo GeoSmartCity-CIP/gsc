@@ -106,7 +106,7 @@
 			<groupId>org.jvnet.staxex</groupId>
 			<artifactId>stax-ex</artifactId>
 			<version>2.2.7</version>
-		</dependency-->
+		</dependency>
 		<dependency>
 			<groupId>com.sun.xml.ws</groupId>
 			<artifactId>policy</artifactId>
@@ -116,7 +116,7 @@
 			<groupId>com.sun.xml.stream.buffer</groupId>
 			<artifactId>streambuffer</artifactId>
 			<version>2.2.7</version>
-		</dependency>
+		</dependency-->
 		<dependency>
 			<groupId>com.sun.xml.ws</groupId>
 			<artifactId>jaxws-rt</artifactId>
