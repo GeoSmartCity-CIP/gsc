@@ -57,11 +57,11 @@
 			<name>Mapfish</name> 
 			<url>http://dev.mapfish.org/maven/repository</url>
 		</repository>	
-		<repository>
+		<!--repository>
 			<id>Hibernate</id>
 			<name>Hibernate</name>
 			<url>http://www.hibernatespatial.org/repository</url>
-		</repository>					
+		</repository-->					
 	</repositories>
 	<dependencies>
 		<dependency>
@@ -169,6 +169,12 @@
 			<groupId>org.hibernatespatial</groupId>
 			<artifactId>hibernate-spatial-postgis</artifactId>
 			<version>1.0-M2</version>
+			<exclusions>
+				<exclusion>
+					<groupId>org.postgis</groupId>
+					<artifactId>postgis-jdbc</artifactId>
+				</exclusion>
+			</exclusions>			
 		</dependency>
 		<dependency>
 			<groupId>org.postgresql</groupId>
