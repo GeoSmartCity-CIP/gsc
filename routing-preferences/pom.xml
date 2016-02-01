@@ -57,11 +57,11 @@
 			<name>Mapfish</name> 
 			<url>http://dev.mapfish.org/maven/repository</url>
 		</repository>	
-		<repository>
+		<!--repository>
 			<id>Hibernate</id>
 			<name>Hibernate</name>
 			<url>http://www.hibernatespatial.org/repository</url>
-		</repository>					
+		</repository-->					
 	</repositories>
 	<dependencies>
 		<dependency>
@@ -178,7 +178,7 @@
 		<dependency>
 			<groupId>org.postgis</groupId>
 			<artifactId>postgis-jdbc</artifactId>
-			<version>1.3.6</version>
+			<version>1.5.2</version>
 		</dependency>
 		<dependency>
 			<groupId>javax.servlet</groupId>
