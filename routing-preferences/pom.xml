@@ -36,9 +36,9 @@
 	</build>
 	<repositories>
 		<repository>
-			<id>internal</id>
+			<id>archiva.internal.sinergis</id>
 			<name>sun</name> 
-			<url>http://java.sun.com/products/jta</url>
+			<url>http://srv11svn.nco.inet:8180/archiva/repository/internal</url>
 		</repository>
 	</repositories>	
 	<dependencies>	
