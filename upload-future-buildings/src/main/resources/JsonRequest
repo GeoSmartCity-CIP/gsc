@@ -1,0 +1,1 @@
+http://hub.geosmartcity.eu/geoserver/gsc/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=$workspaceGeoserver:$tableName&outputFormat=application/json&CQL_FILTER=lifespan_beginning='$timestamp'and%20lifespan_end%20is%20null

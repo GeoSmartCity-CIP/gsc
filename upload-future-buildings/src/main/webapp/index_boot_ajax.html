@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>GeoSmartCity</title>
+
+        <!-- CSS -->
+        <link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Roboto:400,100,300,500">
+        <link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+        <link rel="stylesheet" href="assets/font-awesome/css/font-awesome.min.css">
+		<link rel="stylesheet" href="assets/css/form-elements.css">
+        <link rel="stylesheet" href="assets/css/style.css">
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+        <!-- Favicon and touch icons -->
+        <link rel="shortcut icon" href="assets/ico/favicon.png">
+        <link rel="apple-touch-icon-precomposed" sizes="144x144" href="assets/ico/apple-touch-icon-144-precomposed.png">
+        <link rel="apple-touch-icon-precomposed" sizes="114x114" href="assets/ico/apple-touch-icon-114-precomposed.png">
+        <link rel="apple-touch-icon-precomposed" sizes="72x72" href="assets/ico/apple-touch-icon-72-precomposed.png">
+        <link rel="apple-touch-icon-precomposed" href="assets/ico/apple-touch-icon-57-precomposed.png">
+
+    </head>
+
+    <body>
+
+		<!-- Top menu -->
+		<nav class="navbar navbar-inverse navbar-no-bg" role="navigation">
+			<div class="container">
+				<div class="navbar-header">
+					<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#top-navbar-1">
+						<span class="sr-only">Toggle navigation</span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+						<span class="icon-bar"></span>
+					</button>
+					<a class="navbar-brand" href="index.html">GeoSmartCity Upload Form Template</a>
+				</div>
+				<!-- Collect the nav links, forms, and other content for toggling -->
+				<div class="collapse navbar-collapse" id="top-navbar-1">
+					<ul class="nav navbar-nav navbar-right">
+						<li>
+							<span class="li-social">
+								<a href="#"><i class="fa fa-facebook"></i></a> 
+								<a href="#"><i class="fa fa-twitter"></i></a> 
+								<a href="#"><i class="fa fa-envelope"></i></a> 
+								<a href="#"><i class="fa fa-skype"></i></a>
+							</span>
+						</li>
+					</ul>
+				</div>
+			</div>
+		</nav>
+
+        <!-- Top content -->
+        <div class="top-content">
+        	
+            <div class="inner-bg">
+                <div class="container">
+                    <div class="row">
+                        <div class="col-sm-8 col-sm-offset-2 text">
+                            <h1><strong>GeoSmartCity</strong> GeoSmartCity Upload Form</h1>
+                        </div>
+                    </div>
+                    <div class="row">
+                    	<div class="col-sm-6 book">
+                    		<img src="assets/img/logoGeo.png" alt="">
+                    	</div>
+                        <div class="col-sm-6 form-box">
+                        	<div class="form-top">
+                        		<div class="form-top-left">
+                        			<h3>Upload your dataset</h3>
+                            		<p>Fill in the form below to upload your data:</p>
+                        		</div>
+                        		<div class="form-top-right">
+                        			<i class="fa fa-pencil"></i>
+                        		</div>
+                            </div>
+                            <div class="form-bottom" id="boxForm">
+			                    <form role="form" action="" class="registration-form" id="inputForm">
+									<div class="form-group">
+									    <p>Select a file : <input id="fileupload" type="file" class="btn" name="file" size="45" /></p>
+									</div>
+			                    	<div class="form-group">
+			                    		<label class="sr-only" for="form-first-name">Height</label>
+			                        	<input type="text" name="fieldHeight" placeholder="Field Height..." class="form-first-name form-control" id="height">
+			                        </div>
+			                        <div class="form-group">
+			                        	<label class="sr-only" for="form-last-name">EPSG</label>
+			                        	<input type="text" name="epsg" placeholder="EPSG..." class="form-last-name form-control" id="epsg">
+			                        </div>
+			                         <div class="form-group">
+			                        	<label class="sr-only" for="form-last-name">Field InspireId Loc</label>
+			                        	<input type="text" name="fieldInspireIdLoc" placeholder="Field InspireIdLoc..." class="form-last-name form-control" id="inspireLoc">
+			                        </div>
+									 <div class="form-group">
+			                        	<label class="sr-only" for="form-last-name">Field InspireId Name</label>
+			                        	<input type="text" name="fieldInspireIdName" placeholder="Field InspireId Name..." class="form-last-name form-control" id="inspireName">
+			                        </div>
+			                       <!-- <button type="submit" class="btn">Upload It!</button>-->
+									<input type="button" id="btnUpload" value="Upload It!" class="form-last-name form-control" onclick="return submitForm();">
+			                    </form>
+								<div id="boxResponse"></div>
+		                    </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+        </div>
+
+
+        <!-- Javascript -->
+        <script src="assets/js/jquery-1.11.1.min.js"></script>
+        <script src="assets/bootstrap/js/bootstrap.min.js"></script>
+        <script src="assets/js/jquery.backstretch.min.js"></script>
+        <script src="assets/js/retina-1.1.0.min.js"></script>
+        <script src="assets/js/scripts.js"></script>
+        
+        <!--[if lt IE 10]>
+            <script src="assets/js/placeholder.js"></script>
+        <![endif]-->
+		<script>
+		function submitForm() {
+		    epsg = document.getElementById('epsg');
+			f = document.getElementById('fileupload');
+			if (epsg.value == "" || f.value == ""){
+				if (f.value == ""){
+					alert("Please, select the file.");
+				}
+				else {
+					epsg.className += " input-error";
+					//epsg.addClass('input-error');
+				}
+			}
+			else {
+				if (epsg.value != ""){
+					//epsg.removeClass('input-error');
+					epsg.className.replace(/\binput-error\b/,'');
+				}
+				document.getElementById('btnUpload').disabled=true;
+                document.getElementById('btnUpload').value="Loading...";
+				var http = new XMLHttpRequest();
+				var form = $('form')[0]; 
+				var formData = new FormData(form);
+				$.ajax({
+					//url : 'http://'+location.hostname+':'+location.port+'/hub/rest/file/upload',
+					url : 'http://hub.geosmartcity.eu/building/rest/file/upload',
+					type : 'POST',
+					data : formData,
+					cache : false,
+					contentType : false,
+					processData : false,
+					success : function(data, textStatus, jqXHR) {
+						var userObj = JSON.parse(jqXHR.responseText);
+					    document.getElementById("inputForm").style.display="none";			
+					    document.getElementById("boxResponse").innerHTML = "<div id=\"response\"><a href="+userObj.wfsUri+" class=\"btn btn-primary btn-lg active\" role=\"button\" TARGET=\"_blank\">Link WFS</a><a href="+userObj.jsonUri+" class=\"btn btn-primary btn-lg active\" role=\"button\" TARGET=\"_blank\">Link Json</a><a href="+userObj.shapeUri+" class=\"btn btn-primary btn-lg active\" role=\"button\" TARGET=\"_blank\">Link Shape</a><button type=\"button\" class=\"btn btn-success-outline\" onclick=\"return returnFun();\">New Import</button></div>";
+					    document.getElementById('btnUpload').value="Upload It!";
+                        document.getElementById('btnUpload').disabled=false;
+					},
+					  error : function(jqXHR, textStatus, errorThrown) {
+						alert(textStatus);
+						document.getElementById('btnUpload').value="Upload It!";
+                            document.getElementById('boxForm').disabled=false;
+					  }
+				});
+			}
+		}
+		
+		
+		function returnFun(){
+			document.getElementById("inputForm").style.display="block";
+			document.getElementById("response").style.display="none";
+			document.getElementById("fileupload").value="";
+			document.getElementById("height").value="";
+			document.getElementById("epsg").value="";
+			document.getElementById("inspireLoc").value="";
+			document.getElementById("inspireName").value="";
+		}
+	</script>
+
+    </body>
+
+</html>

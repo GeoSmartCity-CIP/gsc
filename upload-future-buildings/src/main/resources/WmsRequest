@@ -1,0 +1,1 @@
+uriGeoserver/gsc/wms?service=WMS&version=1.1.0&request=GetMap&layers=$workspaceGeoserver:$tableName&styles=&bbox=743238.0,2967416.0,743265.625,2967450.0&width=624&height=768&srs=EPSG:3857&format=application/openlayers

@@ -1,0 +1,2 @@
+ELSIF ( ST_SRID(NEW.geometry) = $epsg ) THEN
+INSERT INTO wps_solar.buildings_$epsg VALUES (NEW.*);

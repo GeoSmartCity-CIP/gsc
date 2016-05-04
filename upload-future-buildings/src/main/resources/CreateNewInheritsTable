@@ -1,0 +1,4 @@
+CREATE TABLE wps_solar.buildings_$epsg (
+    CONSTRAINT pk_buildings_$epsg PRIMARY KEY (classid),
+    CONSTRAINT ck_buildings_$epsg CHECK (st_srid(geometry) = $epsg)
+) INHERITS (wps_solar.buildings)
