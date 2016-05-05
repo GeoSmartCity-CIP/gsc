@@ -15,7 +15,7 @@ public class GdalOperation {
 	 */
 	public static String translateForClip(String inputRaster, String outputRaster, String boundingBox) {
 		try {
-			String command = ProjectProperties.loadByName("gdal_path") + GDAL_TRANSLATE + " -projwin " + boundingBox
+			String command = ProjectPropertiesSolar.loadByName("gdal_path") + GDAL_TRANSLATE + " -projwin " + boundingBox
 					+ " -of GTiff ";
 			
 			command += inputRaster + " " + outputRaster;
@@ -38,8 +38,8 @@ public class GdalOperation {
 	public static String translateToNormalize(String inputRaster, String outputRaster, String srs) {
 		try {
 			// gdal_translate -of GTiff -a_srs EPSG:4326 file1.tif file2.tif
-			String command = ProjectProperties.loadByName("gdal_path") + GDAL_TRANSLATE + " --config GDAL_DATA \""
-					+ ProjectProperties.loadByName("gdal_data") + "\" -of " + GTIFF + " -a_srs " + srs + " "
+			String command = ProjectPropertiesSolar.loadByName("gdal_path") + GDAL_TRANSLATE + " --config GDAL_DATA \""
+					+ ProjectPropertiesSolar.loadByName("gdal_data") + "\" -of " + GTIFF + " -a_srs " + srs + " "
 					+ inputRaster + " " + outputRaster;
 			
 			LOGGER.debug("comando eseguito " + command);

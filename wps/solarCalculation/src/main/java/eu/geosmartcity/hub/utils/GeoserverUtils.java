@@ -24,21 +24,19 @@ public class GeoserverUtils {
 	/*
 	 * pubblica il layer su geoserver
 	 */
-	public static String publisherLayerOnGeoserver(String raster, String width,
-			String heigth, Catalog catalog, String layerName, String ws, String epsg, ReferencedEnvelope envelope)
-			throws FileNotFoundException {
-		
+	public static String publisherLayerOnGeoserver(String raster, String width, String heigth, Catalog catalog,
+			String layerName, String ws, String epsg, ReferencedEnvelope envelope) throws FileNotFoundException {
 		
 		String getMapRequest = null;
-
+		
 		try {
 			
 			File outputRasterFile = new File(raster);
 			
 			GeoServerRESTPublisher publisher = new GeoServerRESTPublisher(
-					Constants.GEOSERVER_REST_URL,
-					Constants.GEOSERVER_REST_USER,
-					Constants.GEOSERVER_REST_PW);
+					ProjectPropertiesSolar.loadByName(Constants.GEOSERVER_REST_URL),
+					ProjectPropertiesSolar.loadByName(Constants.GEOSERVER_REST_USER),
+					ProjectPropertiesSolar.loadByName(Constants.GEOSERVER_REST_PW));
 			
 			//se non c'è il ws temp lo creo
 			boolean wsCreated = true;
@@ -54,23 +52,27 @@ public class GeoserverUtils {
 			
 			if (wsCreated) {
 				
-				publishResult = publisher.publishGeoTIFF(ws, fileName, fileName, outputRasterFile, epsg, GSResourceEncoder.ProjectionPolicy.REPROJECT_TO_DECLARED, Constants.SOLAR_STYLE, null);
+				publishResult = publisher.publishGeoTIFF(ws, fileName, fileName, outputRasterFile, epsg,
+						GSResourceEncoder.ProjectionPolicy.REPROJECT_TO_DECLARED,
+						ProjectPropertiesSolar.loadByName(Constants.SOLAR_STYLE), null);
 				
 				if (publishResult) {
 					CoverageInfo coverage = catalog.getCoverageByName(fileName);
 					
 					if (coverage != null) {
 						coverage.getSupportedFormats().add(Constants.TIF_EXTENSION);
+						coverage.setSRS(epsg);
 						catalog.save(coverage);
 					}
 					
-					getMapRequest = Constants.GEOSERVER_REST_URL
-							+ "/wms?SERVICE=WMS&VERSION=" + Constants.WMS_VERSION
-							+ "&request=GetMap&LAYERS=" + fileName + "&bbox=" + coverage.boundingBox().getMinX()+ ","
-							+ coverage.boundingBox().getMinY() + "," +coverage.boundingBox().getMaxX()+ "," + coverage.boundingBox().getMaxY() + "&srs=" + epsg
-							+ "&WIDTH=" + width  + "&HEIGHT=" + heigth + "&FORMAT=application/openlayers";
+					getMapRequest = ProjectPropertiesSolar.loadByName(Constants.GEOSERVER_REST_URL) + "/wms?SERVICE=WMS&VERSION="
+							+ ProjectPropertiesSolar.loadByName(Constants.WMS_VERSION) + "&request=GetMap&LAYERS="
+							+ fileName + "&bbox=" + coverage.boundingBox().getMinX() + ","
+							+ coverage.boundingBox().getMinY() + "," + coverage.boundingBox().getMaxX() + ","
+							+ coverage.boundingBox().getMaxY() + "&srs=" + epsg + "&WIDTH=" + width + "&HEIGHT="
+							+ heigth + "&FORMAT=application/openlayers";
 					
-					getMapRequest += "&styles=" + Constants.SOLAR_STYLE;
+					getMapRequest += "&styles=" + ProjectPropertiesSolar.loadByName(Constants.SOLAR_STYLE);
 				}
 			}
 			
@@ -147,13 +149,13 @@ public class GeoserverUtils {
 		//se non sono riuscita a recuperare il path oppure il file non esiste riscrivo il raster o il layer vettoriale su fs
 		if (filePath == null) {
 			if (raster != null) {
-				filePath = ProjectProperties.loadByName(Constants.TMP_PATH) + raster.getName() + "_"
+				filePath = ProjectPropertiesSolar.loadByName(Constants.TMP_PATH) + raster.getName() + "_"
 						+ System.currentTimeMillis() + Constants.TIF_EXTENSION;
 				LOGGER.debug("inizio scrittura raster " + raster.getName() + " in " + filePath);
 				ProcessUtils.writeRasterSuFile(filePath, raster);
 			}
 			else if (sfs != null) {
-				filePath = ProjectProperties.loadByName(Constants.TMP_PATH) + sfs.getSchema().getTypeName() + "_"
+				filePath = ProjectPropertiesSolar.loadByName(Constants.TMP_PATH) + sfs.getSchema().getTypeName() + "_"
 						+ System.currentTimeMillis() + Constants.GML_EXTENSION;
 				LOGGER.debug("inizio scrittura sfs " + sfs.getSchema().getTypeName() + " in " + filePath);
 				ProcessUtils.writeVectorLayerSuGML(filePath, sfs);

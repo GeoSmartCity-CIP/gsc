@@ -20,7 +20,7 @@ public class DateSolarUtils {
 	 * @throws ParseException
 	 */
 	public static int getDayOfYear(String dateString) throws ParseException {
-		SimpleDateFormat sdf = new SimpleDateFormat(Constants.DATE_FORMAT);
+		SimpleDateFormat sdf = new SimpleDateFormat(ProjectPropertiesSolar.loadByName(Constants.DATE_FORMAT));
 		Date date = sdf.parse(dateString);
 		GregorianCalendar gc = new GregorianCalendar();
 		
@@ -54,7 +54,7 @@ public class DateSolarUtils {
 		}
 		catch (ParseException e) {
 			throw new WPSException("date formats for start day " + startDay + " or for end date " + endDay
-					+ " are wrong, the valid format is " + Constants.DATE_FORMAT);
+					+ " are wrong, the valid format is " +  ProjectPropertiesSolar.loadByName(Constants.DATE_FORMAT));
 		}
 		
 	}

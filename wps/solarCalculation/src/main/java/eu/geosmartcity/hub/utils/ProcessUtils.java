@@ -198,7 +198,7 @@ public class ProcessUtils {
 		String projwin = boundingBox.getMinX() + " " + boundingBox.getMaxY() + " " + boundingBox.getMaxX() + " "
 				+ boundingBox.getMinY();
 		
-		String clipRasterFile = ProjectProperties.loadByName(Constants.TMP_PATH) + inputFileReplace + "_" + System.currentTimeMillis() + Constants.TIF_EXTENSION;
+		String clipRasterFile = ProjectPropertiesSolar.loadByName(Constants.TMP_PATH) + inputFileReplace + "_" + System.currentTimeMillis() + Constants.TIF_EXTENSION;
 		if (inputFile != null) {
 			LOGGER.debug("inizio clip raster " + inputFile);
 			clipRasterFile = GdalOperation.translateForClip(inputFile, clipRasterFile, projwin);

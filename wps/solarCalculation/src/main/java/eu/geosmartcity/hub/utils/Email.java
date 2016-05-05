@@ -20,8 +20,8 @@ public class Email {
 		System.setProperty("java.net.preferIPv4Stack", "true"); // necessario per utilizzare IPV4
 		Properties props = System.getProperties();
 		
-		props.put("mail.smtp.host", ProjectProperties.loadByName("smtpServer"));
-		props.put("mail.smtp.port", ProjectProperties.loadByName("smtpPort"));
+		props.put("mail.smtp.host", ProjectPropertiesSolar.loadByName("smtpServer"));
+		props.put("mail.smtp.port", ProjectPropertiesSolar.loadByName("smtpPort"));
 		
 		Session mailSession = Session.getDefaultInstance(props);
 		Message simpleMessage = new MimeMessage(mailSession);
