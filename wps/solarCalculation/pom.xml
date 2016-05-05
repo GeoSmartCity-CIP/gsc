@@ -4,7 +4,7 @@
 
 	<groupId>eu.geosmartcity.hub.wps</groupId>
 	<artifactId>hub-wps</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0</version>
 	<packaging>jar</packaging>
 
 	<name>hub-wps</name>
@@ -24,6 +24,7 @@
 				<activeByDefault>true</activeByDefault>
 			</activation>
 			<build>
+				<finalName>solar-wps</finalName>
 				<resources>
 					<resource>
 						<directory>src/main/resources</directory>
