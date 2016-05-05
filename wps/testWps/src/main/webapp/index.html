@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GeoSmartCity</title>
+
+<!-- CSS -->
+<link rel="stylesheet"
+	href="http://fonts.googleapis.com/css?family=Roboto:400,100,300,500">
+<link rel="stylesheet" href="assets/bootstrap/css/bootstrap.min.css">
+<link rel="stylesheet"
+	href="assets/font-awesome/css/font-awesome.min.css">
+<link rel="stylesheet" href="assets/css/form-elements.css">
+<link rel="stylesheet" href="assets/css/style.css">
+
+<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+<!--[if lt IE 9]>
+            <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+            <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+        <![endif]-->
+
+<!-- Favicon and touch icons -->
+<link rel="shortcut icon" href="assets/ico/favicon.png">
+<link rel="apple-touch-icon-precomposed" sizes="144x144"
+	href="assets/ico/apple-touch-icon-144-precomposed.png">
+<link rel="apple-touch-icon-precomposed" sizes="114x114"
+	href="assets/ico/apple-touch-icon-114-precomposed.png">
+<link rel="apple-touch-icon-precomposed" sizes="72x72"
+	href="assets/ico/apple-touch-icon-72-precomposed.png">
+<link rel="apple-touch-icon-precomposed"
+	href="assets/ico/apple-touch-icon-57-precomposed.png">
+
+<script type="text/javascript" src="javascript/jQuery/jquery.min.js"></script>
+<script type="text/javascript" src="javascript/config.js"></script>
+<script type="text/javascript" src="javascript/functions.js"></script>
+
+<style type="text/css">
+div#divEmail {
+	display: none;
+}
+div#divStatusLocation {
+	display: none;
+}
+</style>
+
+</head>
+<body>
+	<!-- Top menu -->
+	<nav class="navbar navbar-inverse navbar-no-bg" role="navigation">
+		<div class="container">
+			<div class="navbar-header">
+				<button type="button" class="navbar-toggle collapsed"
+					data-toggle="collapse" data-target="#top-navbar-1">
+					<span class="sr-only">Toggle navigation</span> <span
+						class="icon-bar"></span> <span class="icon-bar"></span> <span
+						class="icon-bar"></span>
+				</button>
+				<a class="navbar-brand" href="index.html">GeoSmartCity Test Wps</a>
+			</div>
+			<!-- Collect the nav links, forms, and other content for toggling -->
+			<div class="collapse navbar-collapse" id="top-navbar-1">
+				<ul class="nav navbar-nav navbar-right">
+					<li><span class="li-text"> Put some text or </span> <a
+						href="#"><strong>links</strong></a> <span class="li-text">
+							here, or some icons: </span> <span class="li-social"> <a href="#"><i
+								class="fa fa-facebook"></i></a> <a href="#"><i
+								class="fa fa-twitter"></i></a> <a href="#"><i
+								class="fa fa-envelope"></i></a> <a href="#"><i
+								class="fa fa-skype"></i></a>
+					</span></li>
+				</ul>
+			</div>
+		</div>
+	</nav>
+
+	<div class="top-content">
+
+		<div class="inner-bg">
+			<div class="container">
+				<div class="row">
+					<div class="col-sm-8 col-sm-offset-2 text">
+						<h1>
+							<strong>GeoSmartCity</strong> GeoSmartCity Test Wps
+						</h1>
+					</div>
+				</div>
+				<div class="row">
+					<div class="col-sm-3 book">
+						<img src="assets/img/logoGeo.png" alt="">
+					</div>
+					<div class="col-sm-9 form-box">
+						<div class="form-bottom">
+							<div class="form-group">
+								<label for="comment">Choose service...</label> <select
+									name="servizio" id="servizioSelect" onchange="showFields()">
+									<option value="ChooseService">Choose service...</option>
+									<option value="co2Wps">Buildings CO2 emissions estimation</option>
+									<option value="solarWps">Solar potential calculation</option>
+								</select>
+							</div>
+							
+							<div id="divEmail" class="form-group">
+								<label for="comment">Indicate your email for receive a notification when the wps ends:</label>
+								<input type="text" class="form-control" id="email"></input>
+							</div>
+
+							<div class="form-group">
+								<label for="textArea">Request:</label>
+								<textarea class="form-control" id="textArea"></textarea>
+							</div>
+
+							<div class="form-group">
+								<button type="button" id="sendButton" class="btn btn-primary btn-lg" onclick="sendRequest()">Send</button>
+							</div>
+
+							<div class="form-group">
+								<label for="response">Response:</label>
+								<textarea class="form-control" id="response"></textarea>
+							</div>
+							
+							<div id="divStatusLocation" class="form-group">
+								<a class="btn btn-primary" href="#" role="button" target="_blank" id="statusLocation">Verify status</a>
+							</div>
+
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<!-- Javascript -->
+	<script src="assets/js/jquery-1.11.1.min.js"></script>
+	<script src="assets/bootstrap/js/bootstrap.min.js"></script>
+	<script src="assets/js/jquery.backstretch.min.js"></script>
+	<script src="assets/js/retina-1.1.0.min.js"></script>
+	<script src="assets/js/scripts.js"></script>
+</body>
+</html>
