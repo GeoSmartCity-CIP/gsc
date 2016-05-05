@@ -13,6 +13,7 @@ import org.geotools.process.factory.DescribeParameter;
 import org.geotools.process.factory.DescribeProcess;
 import org.geotools.process.factory.DescribeResult;
 import org.geotools.referencing.CRS;
+import org.geotools.util.SimpleInternationalString;
 import org.opengis.util.ProgressListener;
 
 import eu.geosmartcity.hub.utils.Constants;
@@ -20,7 +21,7 @@ import eu.geosmartcity.hub.utils.DateSolarUtils;
 import eu.geosmartcity.hub.utils.Email;
 import eu.geosmartcity.hub.utils.GeoserverUtils;
 import eu.geosmartcity.hub.utils.ProcessUtils;
-import eu.geosmartcity.hub.utils.ProjectProperties;
+import eu.geosmartcity.hub.utils.ProjectPropertiesSolar;
 
 @DescribeProcess(title = "solarPotentialCalculation", description = "Service that compute solar potential")
 public class SolarPotentialCalculation extends SpringBeanProcessFactory {
@@ -52,6 +53,8 @@ public class SolarPotentialCalculation extends SpringBeanProcessFactory {
 			ProgressListener progressListener) throws Exception {
 		
 		progressListener.started();
+		progressListener.setTask(new SimpleInternationalString("Starting solar potential calculation"));
+		progressListener.progress(5);
 		
 		checkInputParameter(dsm, dtm, lin, alb, coefbh, startDate, step, dist, buildings);
 		LOGGER.info("numero di edifici " + buildings.size());
@@ -78,6 +81,7 @@ public class SolarPotentialCalculation extends SpringBeanProcessFactory {
 			dtmFileClipped = ProcessUtils.clip(dtmFile, bboxBuildings);
 			LOGGER.info("dtm clipped in " + dtmFileClipped);
 			
+			progressListener.setTask(new SimpleInternationalString("Clipping Digital Terrain Model"));
 			progressListener.progress(10);
 			
 			//cerco il dsm sul catalog di geoserver, se non c'è lo creo
@@ -87,21 +91,24 @@ public class SolarPotentialCalculation extends SpringBeanProcessFactory {
 			dsmFileClipped = ProcessUtils.clip(dsmFile, bboxBuildings);
 			LOGGER.info("dsm clipped in " + dsmFileClipped);
 			
+			progressListener.setTask(new SimpleInternationalString("Clipping Digital Surface Model"));
 			progressListener.progress(20);
 			
 			//cerco il layer degli edifici su geoserver, se non c'è lo creo
 			buildingFile = GeoserverUtils.getObjPath(catalog, buildings);
 			LOGGER.info("buildingFile in " + buildingFile);
 			
+			progressListener.setTask(new SimpleInternationalString("Reading buildings layer"));
 			progressListener.progress(30);
 			
 			String epsg = getEpsg(dtm, dsm, buildings);
 			
 			progressListener.progress(40);
+			progressListener.setTask(new SimpleInternationalString("Starting r.sun operation"));
 			
-			String command = Constants.PATH_SCRIPT + " ";
-			command += Constants.MAPSET + " ";
-			command += Constants.LOCATION + " ";
+			String command = ProjectPropertiesSolar.loadByName(Constants.PATH_SCRIPT) + " ";
+			command += ProjectPropertiesSolar.loadByName(Constants.MAPSET) + " ";
+			command += ProjectPropertiesSolar.loadByName(Constants.LOCATION) + " ";
 			command += dtmFileClipped + " ";
 			command += buildingFile + " ";
 			command += epsg + " ";
@@ -122,6 +129,8 @@ public class SolarPotentialCalculation extends SpringBeanProcessFactory {
 			
 			String output = ProcessUtils.exec(command);
 			LOGGER.info("comando eseguito " + command);
+			
+
 			progressListener.progress(90);
 			
 			File f = new File(output);
@@ -130,14 +139,16 @@ public class SolarPotentialCalculation extends SpringBeanProcessFactory {
 				throw new WPSException("error while creating file " + output);
 			}
 			
-			//ReferencedEnvelope envelope = buildings.getBounds();
+			progressListener.setTask(new SimpleInternationalString("Starting Geoserver publishing"));
 			
-			getMap = GeoserverUtils.publisherLayerOnGeoserver(output, Constants.RASTER_WIDTH, Constants.RASTER_HEIGHT,
-					catalog, output, Constants.GEOSERVER_WS_TEMP, Constants.EPSG + epsg, bboxBuildings);
+			getMap = GeoserverUtils.publisherLayerOnGeoserver(output, ProjectPropertiesSolar.loadByName(Constants.RASTER_WIDTH), ProjectPropertiesSolar.loadByName(Constants.RASTER_HEIGHT),
+					catalog, output, ProjectPropertiesSolar.loadByName(Constants.GEOSERVER_WS_TEMP), Constants.EPSG + epsg, bboxBuildings);
 			
 			if (addressMail != null) {
-				Email.sendEmail(ProjectProperties.loadByName("smtpFrom"), addressMail, "",
-						ProjectProperties.loadByName("smtpSubject"), getMap);
+				progressListener.setTask(new SimpleInternationalString("Sending email "+addressMail));
+
+				Email.sendEmail(ProjectPropertiesSolar.loadByName("smtpFrom"), addressMail, "",
+						ProjectPropertiesSolar.loadByName("smtpSubject"), getMap);
 			}
 			
 		}
@@ -146,26 +157,27 @@ public class SolarPotentialCalculation extends SpringBeanProcessFactory {
 			throw new WPSException("error while calculating procedure ", e);
 		}
 		finally {
-			if (dsmFile != null && dsmFile.startsWith(ProjectProperties.loadByName(Constants.TMP_PATH))) {
+			if (dsmFile != null && dsmFile.startsWith(ProjectPropertiesSolar.loadByName(Constants.TMP_PATH))) {
 				ProcessUtils.deleteTmpFile(dsmFile);
 			}
 			
-			if (dtmFile != null && dtmFile.startsWith(ProjectProperties.loadByName(Constants.TMP_PATH))) {
+			if (dtmFile != null && dtmFile.startsWith(ProjectPropertiesSolar.loadByName(Constants.TMP_PATH))) {
 				ProcessUtils.deleteTmpFile(dtmFile);
 			}
 			
-			if (buildingFile != null && buildingFile.startsWith(ProjectProperties.loadByName(Constants.TMP_PATH))) {
+			if (buildingFile != null && buildingFile.startsWith(ProjectPropertiesSolar.loadByName(Constants.TMP_PATH))) {
 				ProcessUtils.deleteTmpFile(buildingFile);
 			}
 			
-			if (dtmFileClipped != null && dtmFileClipped.startsWith(ProjectProperties.loadByName(Constants.TMP_PATH))) {
+			if (dtmFileClipped != null && dtmFileClipped.startsWith(ProjectPropertiesSolar.loadByName(Constants.TMP_PATH))) {
 				ProcessUtils.deleteTmpFile(dtmFileClipped);
 			}
 			
-			if (dsmFileClipped != null && dsmFileClipped.startsWith(ProjectProperties.loadByName(Constants.TMP_PATH))) {
+			if (dsmFileClipped != null && dsmFileClipped.startsWith(ProjectPropertiesSolar.loadByName(Constants.TMP_PATH))) {
 				ProcessUtils.deleteTmpFile(dsmFileClipped);
 			}
 			
+			progressListener.setTask(new SimpleInternationalString("Ending solar potential calculation "));
 			progressListener.complete();
 		}
 		
