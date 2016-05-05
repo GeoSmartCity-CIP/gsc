@@ -85,8 +85,13 @@ function showFields() {
 			document.getElementById("textArea").style = 'height:800px';
 			document.getElementById("response").style = 'height:800px';
 			document.getElementById("textArea").value = wpsBuildingsCO2emissionsEstimation;
-		} 
-		else if (selected == 'ChooseService') {
+		
+		} else if (selected == 'energyPerformance') {
+			document.getElementById("textArea").style = 'height:400px';
+			document.getElementById("response").style = 'height:400px';
+			document.getElementById("textArea").value = wpsEnergyPerformance;
+			
+		} else if (selected == 'ChooseService') {
 			document.getElementById("textArea").style = 'height:50px';
 			document.getElementById("response").style = 'height:50px';
 		}
