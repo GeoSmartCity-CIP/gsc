@@ -7,7 +7,7 @@ public class Constants {
 	public final static String TMP_PATH = "tmp_path";
 	
 	//estensioni
-	public final static String TIF_EXTENSION = ".tif";
+	public final static String TIF_EXTENSION = ".tiff";
 	public static final String GML_EXTENSION = ".gml";
 	
 	//url per epsg nel gml
@@ -17,7 +17,8 @@ public class Constants {
 	public static final String EPSG = "EPSG:";
 	
 	//parametri per lo script che esegue le funzioni grass
-	public static final String PATH_SCRIPT = "path_script";
+	public static final String PATH_SCRIPT_SOLAR = "path_script_solar";
+	public static final String PATH_SCRIPT_ZERO_BALANCE = "path_script_zero_balance";
 	public static final String MAPSET = "mapset";
 	public static final String LOCATION = "location";
 	
@@ -31,6 +32,10 @@ public class Constants {
 	
 	public static final String DATE_FORMAT = "dateFormat";
 	public static final String SOLAR_STYLE = "solar_style";
+	public static final String ZERO_BALANCE_STYLE = "zero_balance_style";
 	
-	
+	public static final String FIELD_ENERGY_SOLAR = "energy_solar";
+	public static final String FIELD_ENERGY_CONSUMPTION = "energy_consumption";
+	public static final String FIELD_ZERO_BALANCE = "zero_balance";
+	public static final String ZERO_BALANCE_STORENAME = "zero_balance_storename";
 }

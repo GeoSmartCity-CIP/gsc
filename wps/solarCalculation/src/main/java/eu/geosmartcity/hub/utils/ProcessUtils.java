@@ -4,14 +4,23 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStreamReader;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.media.jai.PlanarImage;
 
 import org.apache.log4j.Logger;
+import org.geoserver.wfs.Transaction;
 import org.geoserver.wps.WPSException;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.coverage.grid.io.GridFormatFinder;
+import org.geotools.data.DefaultTransaction;
+import org.geotools.data.shapefile.ShapefileDataStore;
+import org.geotools.data.shapefile.ShapefileDataStoreFactory;
 import org.geotools.data.simple.SimpleFeatureCollection;
+import org.geotools.data.simple.SimpleFeatureSource;
+import org.geotools.data.simple.SimpleFeatureStore;
 import org.geotools.factory.Hints;
 import org.geotools.gce.geotiff.GeoTiffWriter;
 import org.geotools.geometry.jts.ReferencedEnvelope;
@@ -149,6 +158,68 @@ public class ProcessUtils {
 			try {
 				if (xml != null) {
 					xml.close();
+				}
+			}
+			catch (Throwable e) {
+				LOGGER.error("errore nella chiusura del writer ", e);
+				throw new WPSException("errore during closing sfs " + sfs.getSchema(), e);
+			}
+		}
+		return true;
+	}
+	
+	/*
+	 * scrive il raster su un file in modo da poter lanciare il comando gdal
+	 */
+	public static boolean writeShpSuFile(String pathFile, SimpleFeatureCollection sfs) {
+		File fileShp = new File(pathFile);
+		
+		ShapefileDataStore newDataStore = null;
+		try {
+			
+			ShapefileDataStoreFactory dataStoreFactory = new ShapefileDataStoreFactory();
+			
+			Map<String, Serializable> params = new HashMap<String, Serializable>();
+			params.put("url", fileShp.toURI().toURL());
+			params.put("create spatial index", Boolean.TRUE);
+			
+			newDataStore = (ShapefileDataStore) dataStoreFactory.createNewDataStore(params);
+			newDataStore.createSchema(sfs.getSchema());
+			
+			 /*
+	         * Write the features to the shapefile
+	         */
+	        DefaultTransaction transaction = new DefaultTransaction("create");
+
+	        String typeName = newDataStore.getTypeNames()[0];
+	        SimpleFeatureSource featureSource = newDataStore.getFeatureSource(typeName);
+
+	        if (featureSource instanceof SimpleFeatureStore) {
+	            SimpleFeatureStore featureStore = (SimpleFeatureStore) featureSource;
+	            featureStore.setTransaction(transaction);
+	            try {
+	                featureStore.addFeatures(sfs);
+	                transaction.commit();
+	            } catch (Exception problem) {
+	                problem.printStackTrace();
+	                transaction.rollback();
+	            } finally {
+	                transaction.close();
+	            }
+	        } else {
+	        	throw new WPSException(typeName + " does not support read/write access");
+	        }
+			
+			newDataStore.forceSchemaCRS(sfs.getSchema().getCoordinateReferenceSystem());
+		}
+		catch (Exception e) {
+			LOGGER.error("errore nella scrittura della simpleFeatureCollection " + sfs.getSchema(), e);
+			throw new WPSException("errore during writing simpleFeatureCollection " + sfs.getSchema(), e);
+		}
+		finally {
+			try {
+				if (newDataStore != null) {
+					newDataStore.dispose();
 				}
 			}
 			catch (Throwable e) {
