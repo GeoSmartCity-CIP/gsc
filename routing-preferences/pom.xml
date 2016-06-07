@@ -66,8 +66,8 @@
 	<dependencies>
 		<dependency>
 			<groupId>org.hibernate</groupId>
-			<artifactId>hibernate</artifactId>
-			<version>3.2.6.ga</version>
+			<artifactId>hibernate.core</artifactId>
+			<version>3.3.2.GA</version>
 		</dependency>
 		<dependency>
 			<groupId>org.hibernate</groupId>
