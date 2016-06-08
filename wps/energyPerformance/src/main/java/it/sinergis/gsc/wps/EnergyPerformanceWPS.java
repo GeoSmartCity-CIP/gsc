@@ -47,21 +47,20 @@ public class EnergyPerformanceWPS extends SpringBeanProcessFactory {
   final static Logger logger = Logger.getLogger(EnergyPerformanceWPS.class);
   public EnergyPerformanceWPS () {//Catalog catalog
 	  super("EnergyPerformanceWPS" ,"gsc", EnergyPerformanceWPS.class);
-	 // this.catalog = catalog;
-	  
-	 }
+	}
+  
   @DescribeResult(name="result", description="mappa di energy performance ")
    public SimpleFeatureCollection execute(
-		   @DescribeParameter(name="climaticZone", min = 1, max=1, description="name of the TABULA climatic zone, for more info ceck the web page hub.geosmartcity.eu/(to define)") String climaticZone,		   
-		   @DescribeParameter(name="begin", min = 0, max=1, description="") String begin,		   
-		   @DescribeParameter(name="end", min = 1, max=1, description="end of the building construction") String end,		   
-		   @DescribeParameter(name="height", min = 0, max=1, description="name of the field that contains heigth of the building ") String height,	   
-		   @DescribeParameter(name="floors", min = 0, max=1, description="name of the field that contains the number of floors of the building ") String floors,	   
-		   @DescribeParameter(name="aveFloor", min = 0, max=1, description="name of the field that contains average floor heigth") String aveFloor,
-		   @DescribeParameter(name="refurbihment", min = 0, max=1, description="name of the field that contains refurbishment informstion") String refurbihment,
-		   @DescribeParameter(name="residential", min = 0, max=1, description="name of the field that indicate if the building is residential") String residential,
-		   @DescribeParameter(name="id", min = 0, max=1, description="name of the field that indicate the id") String id,
-		   @DescribeParameter(name="layer",  description="the initisl layer to compute ")SimpleFeatureCollection layer
+		   @DescribeParameter(name="climaticZone", min = 1, max=1, description="name of the TABULA climatic zone, for more info check the web page http://hub.geosmartcity.eu/tabulaRest/rest/tabula") String climaticZone,		   
+		   @DescribeParameter(name="begin", min = 0, max=1, description="name of the attribute that contains the begin construction year of buildings") String begin,		   
+		   @DescribeParameter(name="end", min = 1, max=1, description="name of the attribute that contains the end construction year of buildings. If the begin field is used, the data considered by the computation is the middle of the 2 values") String end,		   
+		   @DescribeParameter(name="height", min = 0, max=1, description="name of the attribute that contains the heigtht of the building.") String height,	   
+		   @DescribeParameter(name="floors", min = 0, max=1, description="name of the attribute that contains the number of floors of the buildings.") String floors,	   
+		   @DescribeParameter(name="aveFloor", min = 0, max=1, description="name of the attribute that contains the information of the average floor heigth of the building.") String aveFloor,
+		   @DescribeParameter(name="refurbihment", min = 0, max=1, description="name of the attribute that contains the information about the refurbihment level. The values on the layer can be: 0 -> no refurbihment 1 -> standard 2 -> advance If this field is not edited all buildings use the standard refurbihment.") String refurbihment,
+		   @DescribeParameter(name="residential", min = 0, max=1, description="name of the attribute that indicates whether the building is residential. If this field is not edited all building is considered as residential") String residential,
+		   @DescribeParameter(name="id", min = 0, max=1, description="field that indicate a key to add at the layer that will be generate.") String id,
+		   @DescribeParameter(name="layer",  description="the building layer")SimpleFeatureCollection layer
 		   
 		   ) {
 	   //Start exstraction info from layer
