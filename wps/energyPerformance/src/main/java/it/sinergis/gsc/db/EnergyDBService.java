@@ -17,7 +17,8 @@ import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.io.ParseException;
 import com.vividsolutions.jts.io.WKTReader;
 
-import it.sinergis.gsc.wps.EnergyModel;
+import it.sinergis.gsc.wps.model.EnergyModel;
+import it.sinergis.gsmc.exception.ClimaticZoneException;
 
 public class EnergyDBService {
 	private String schemaName;
@@ -100,6 +101,31 @@ public class EnergyDBService {
 		return true;
 		
 	}
+	
+	
+	public String getClimaticCode(String climaticaZoneName) throws SQLException, ClimaticZoneException{
+
+		String query = "select id from configurations.climatic_zones where codename = ?  ";//--
+		Connection connection =con;
+		Statement stmt =connection.createStatement();
+		PreparedStatement pstmt = connection.prepareStatement(query);
+
+		pstmt.setString(1, climaticaZoneName);
+		
+		ResultSet rs =pstmt. executeQuery();
+		
+		if (rs.next()){
+			String res =  rs.getString("id");
+			pstmt.close();
+			return res;
+		}else {
+			pstmt.close();
+			throw new ClimaticZoneException();
+			}
+	
+		
+	}
+	
 	
 	
 	public boolean createEnergyTable() throws SQLException{
@@ -326,12 +352,13 @@ public class EnergyDBService {
 	
 	
 	
-	public static void main (String args[]) throws SQLException{
+	public static void main (String args[]) throws SQLException, ClimaticZoneException{
 		 String dbUrl = "jdbc:postgresql://gsm-db:5432/geomap4data";
 		 String user = "postgres";
 		 String psw = "postgres";		 
 		 System.out.println("prova");
 		EnergyDBService  dbEnergy= new EnergyDBService("wps_energy","tmp1454401115660","3044");
+		dbEnergy.getClimaticCode("prova");
 		//dbEnergy.computeAreaPer();
 		//dbEnergy.updateFloor();
 		//dbEnergy.updateALL("2");
