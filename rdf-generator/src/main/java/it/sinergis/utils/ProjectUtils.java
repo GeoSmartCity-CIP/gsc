@@ -152,7 +152,7 @@ public class ProjectUtils {
 								String propertyNameWFS = (String) wfsFieldsToken.nextElement();
 								String wfsPropertyValue = getNodeValue(elem, propertyNameWFS);
 								if (wfsPropertyValue != null){
-									String propertyRDFTemplate = ProjectUtils.getPropertyTemplate("config/nodes", propertyNameWFS);
+									String propertyRDFTemplate = ProjectUtils.getPropertyTemplate("config/nodes", propertyNameWFS.replace(":", "_-_"));
 									if (propertyRDFTemplate != null){
 										propertyRDFTemplate = propertyRDFTemplate.replace("@VALUE@", wfsPropertyValue);
 										rdfDescrition += propertyRDFTemplate;
