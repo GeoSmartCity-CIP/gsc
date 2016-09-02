@@ -1,3 +1,0 @@
-<geo:hasGeometry>
-	<geo:Point geo:asWKT="POINT(@VALUE@)"/>
-</geo:hasGeometry>
