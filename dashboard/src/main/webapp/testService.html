@@ -1,0 +1,113 @@
+<html lang="it">
+<head>
+<title>GSC Building test services</title>
+<script type="text/javascript" src="http://openlayers.org/api/2.13.1/OpenLayers.js"></script>
+<script type="text/javascript">
+
+function sendRequest() {
+	
+	var metodo = document.getElementById("actionName").value;
+	var dati = document.getElementById("edifici").value;
+	var response = document.getElementById("response");
+	
+	new OpenLayers.Request.POST({
+		url: "./gscservlet?actionName=" + metodo,
+		data: dati,
+		headers: {
+			"Content-Type": "application/json"
+		},
+		success: function(fp){
+			response.innerHTML = fp.responseText;
+		},
+		failure: function(fp) {
+			response.innerHTML = 'Error';
+		},
+		scope: this
+	});
+}
+
+function selectedValue() {
+	var metodo = document.getElementById("actionName").value;
+	var request = document.getElementById("edifici");
+	var response = document.getElementById("response");
+	
+	response.innerHTML = '';
+	
+	if (metodo == "getConsumptions") {
+		request.value = '{"uuid":["204908", "204909", "204709"]}';
+	}
+	else if (metodo == "getEnergyCertificates") {
+		request.value = '{"uuid":"204908"}';
+	}
+	else if (metodo == "getEnergyClassMultiBuildings") {
+		request.value = '{"uuid":["203494","204006","204066"]}';
+	}
+	else if (metodo == "getConsumptionsNormalizedSingleBuilding") {
+		request.value = '{"uuid":"204006","graphicDataType":"elettrico"}';
+	}
+	else if (metodo == "getConsumptionsNormalizedMultiBuildings") {
+		request.value = '{"uuid":["204062","204134","203794","204272","204275"],"graphicDataType":"elettrico","valSlider":2014,"sldType":"residenziale"}';
+	}
+	else if (metodo == "getConsumptionsNormalizedSingleInstallation") {
+		request.value = '{"uuid":"20034"}';
+	}
+	else if (metodo == "getConsumptionsNormalizedMultiInstallations") {
+		request.value = '{"uuid":["20034","20035","20040"],"valSlider":2014}';
+	}
+}
+</script>
+</head>
+<body>
+	<div>
+		<table>
+			<tr>
+				<td>
+					<p class="titolo2">Services</p>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<table>
+						<tr>
+							<td>
+								<select id="actionName" onchange="selectedValue()">
+									<option value="getConsumptions">getConsumptions</option>
+									<option value="getEnergyCertificates">getEnergyCertificates</option>
+									<option value="getEnergyClassMultiBuildings">getEnergyClassMultiBuildings</option>
+									<option value="getConsumptionsNormalizedSingleBuilding">getConsumptionsNormalizedSingleBuilding</option>
+									<option value="getConsumptionsNormalizedMultiBuildings">getConsumptionsNormalizedMultiBuildings</option>
+									<option value="getConsumptionsNormalizedSingleInstallation">getConsumptionsNormalizedSingleInstallation</option>
+									<option value="getConsumptionsNormalizedMultiInstallations">getConsumptionsNormalizedMultiInstallations</option>
+								</select>
+							</td>
+						</tr>
+					</table>
+				</td>
+			</tr>
+			<tr>
+				<td>&nbsp;</td>
+			</tr>
+			<tr>
+				<td>
+					<p class="titolo2">Request</p>
+				</td>
+				<td>
+					<p class="titolo2">Response</p>
+				</td>
+			</tr>
+			<tr>
+				<td><textarea id="edifici" cols="50" rows="25">{"uuid":["204908", "204909", "204709"]}</textarea></td>
+				<td><textarea readonly id="response" cols="110" rows="25"></textarea></td>
+			</tr>
+			<tr>
+				<td>&nbsp;</td>
+			</tr>
+			<tr>
+				<td style="padding-left: 1em">
+					<button type="button" onclick="sendRequest()">Submit</button>
+				</td>
+			</tr>
+		</table>
+	</div>
+</body>
+</html>
