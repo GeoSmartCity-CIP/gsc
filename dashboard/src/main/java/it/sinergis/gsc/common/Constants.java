@@ -16,9 +16,6 @@ public final class Constants {
 	/** Costante per il valore elettrico associato alla variabile graphicDataType. */
 	public static final String ELETTRICO = "elettrico";
 	
-	/** Costante per il messaggio di errore nel servizio di creazione del report. */
-	public static final String ERRORE_CREAZIONE_REPORT = "ERRORE_CREAZIONE_REPORT";
-	
 	/** Costante per il messaggio di errore nei parametri in input. */
 	public static final String ERRORE_PARAMETRI_INPUT = "ERRORE_PARAMETRI_INPUT";
 	
@@ -33,11 +30,6 @@ public final class Constants {
 	
 	/** Costante graphicDataType. */
 	public static final String GRAPHIC_DATA_TYPE = "graphicDataType";
-	
-	/**
-	 * Nome del bookmark i dati e i grafici nel report.
-	 */
-	public static final String GSC_BOOKMARK_NAME = "gsc";
 	
 	/** Costante per il valore impianto associato alla variabile graphicDataType. */
 	public static final String IMPIANTO = "impianto";
