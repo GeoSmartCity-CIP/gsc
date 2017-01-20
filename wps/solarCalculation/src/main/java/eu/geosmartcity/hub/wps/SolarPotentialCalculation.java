@@ -22,6 +22,7 @@ import eu.geosmartcity.hub.utils.Email;
 import eu.geosmartcity.hub.utils.GeoserverUtils;
 import eu.geosmartcity.hub.utils.ProcessUtils;
 import eu.geosmartcity.hub.utils.ProjectPropertiesSolar;
+import eu.geosmartcity.hub.velocity.WpsTemplate;
 
 @DescribeProcess(title = "solarPotentialCalculation", description = "Service that compute solar potential")
 public class SolarPotentialCalculation extends SpringBeanProcessFactory {
@@ -106,7 +107,7 @@ public class SolarPotentialCalculation extends SpringBeanProcessFactory {
 			progressListener.progress(40);
 			progressListener.setTask(new SimpleInternationalString("Starting r.sun operation"));
 			
-			String command = ProjectPropertiesSolar.loadByName(Constants.PATH_SCRIPT) + " ";
+			String command = ProjectPropertiesSolar.loadByName(Constants.PATH_SCRIPT_SOLAR) + " ";
 			command += ProjectPropertiesSolar.loadByName(Constants.MAPSET) + " ";
 			command += ProjectPropertiesSolar.loadByName(Constants.LOCATION) + " ";
 			command += dtmFileClipped + " ";
@@ -141,14 +142,16 @@ public class SolarPotentialCalculation extends SpringBeanProcessFactory {
 			
 			progressListener.setTask(new SimpleInternationalString("Starting Geoserver publishing"));
 			
-			getMap = GeoserverUtils.publisherLayerOnGeoserver(output, ProjectPropertiesSolar.loadByName(Constants.RASTER_WIDTH), ProjectPropertiesSolar.loadByName(Constants.RASTER_HEIGHT),
+			getMap = GeoserverUtils.publisherSolarRasterOnGeoserver(output, ProjectPropertiesSolar.loadByName(Constants.RASTER_WIDTH), ProjectPropertiesSolar.loadByName(Constants.RASTER_HEIGHT),
 					catalog, output, ProjectPropertiesSolar.loadByName(Constants.GEOSERVER_WS_TEMP), Constants.EPSG + epsg, bboxBuildings);
 			
 			if (addressMail != null) {
 				progressListener.setTask(new SimpleInternationalString("Sending email "+addressMail));
 
+				WpsTemplate template = new WpsTemplate();
+				String message = template.getSolarMailTemplate(getMap);
 				Email.sendEmail(ProjectPropertiesSolar.loadByName("smtpFrom"), addressMail, "",
-						ProjectPropertiesSolar.loadByName("smtpSubject"), getMap);
+						ProjectPropertiesSolar.loadByName("smtpSubject"), message);
 			}
 			
 		}

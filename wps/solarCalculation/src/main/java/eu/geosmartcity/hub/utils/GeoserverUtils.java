@@ -12,6 +12,7 @@ import java.net.URL;
 import org.apache.log4j.Logger;
 import org.geoserver.catalog.Catalog;
 import org.geoserver.catalog.CoverageInfo;
+import org.geoserver.catalog.FeatureTypeInfo;
 import org.geoserver.wps.WPSException;
 import org.geotools.coverage.grid.GridCoverage2D;
 import org.geotools.data.simple.SimpleFeatureCollection;
@@ -22,9 +23,9 @@ public class GeoserverUtils {
 	private static final Logger LOGGER = Logger.getLogger(GeoserverUtils.class);
 	
 	/*
-	 * pubblica il layer su geoserver
+	 * pubblica il layer del potenziale solare su geoserver
 	 */
-	public static String publisherLayerOnGeoserver(String raster, String width, String heigth, Catalog catalog,
+	public static String publisherSolarRasterOnGeoserver(String raster, String width, String heigth, Catalog catalog,
 			String layerName, String ws, String epsg, ReferencedEnvelope envelope) throws FileNotFoundException {
 		
 		String getMapRequest = null;
@@ -33,41 +34,36 @@ public class GeoserverUtils {
 			
 			File outputRasterFile = new File(raster);
 			
-			GeoServerRESTPublisher publisher = new GeoServerRESTPublisher(
-					ProjectPropertiesSolar.loadByName(Constants.GEOSERVER_REST_URL),
-					ProjectPropertiesSolar.loadByName(Constants.GEOSERVER_REST_USER),
-					ProjectPropertiesSolar.loadByName(Constants.GEOSERVER_REST_PW));
+			GeoServerRESTPublisher publisher = getRestPublisher();
 			
-			//se non c'è il ws temp lo creo
-			boolean wsCreated = true;
-			boolean publishResult = false;
-			if (catalog.getWorkspaceByName(ws) == null) {
-				wsCreated = publisher.createWorkspace(ws);
-			}
+			boolean isWsCreated = checkWs(publisher, ws, catalog);
 			
 			String fileName = null;
 			if (outputRasterFile.getName() != null) {
 				fileName = outputRasterFile.getName().substring(0, outputRasterFile.getName().indexOf("."));
 			}
 			
-			if (wsCreated) {
+			if (isWsCreated) {
 				
-				publishResult = publisher.publishGeoTIFF(ws, fileName, fileName, outputRasterFile, epsg,
-						GSResourceEncoder.ProjectionPolicy.REPROJECT_TO_DECLARED,
+				boolean publishResult = publisher.publishGeoTIFF(ws, fileName, fileName, outputRasterFile, epsg,
+						GSResourceEncoder.ProjectionPolicy.FORCE_DECLARED,
 						ProjectPropertiesSolar.loadByName(Constants.SOLAR_STYLE), null);
 				
 				if (publishResult) {
 					CoverageInfo coverage = catalog.getCoverageByName(fileName);
 					
 					if (coverage != null) {
-						coverage.getSupportedFormats().add(Constants.TIF_EXTENSION);
+						//coverage.getSupportedFormats().add(Constants.TIF_EXTENSION);
+						coverage.getSupportedFormats().add("TIFF");
+						coverage.setNativeFormat(Constants.TIF_EXTENSION);
+						coverage.setNativeBoundingBox(envelope);
 						coverage.setSRS(epsg);
 						catalog.save(coverage);
 					}
 					
-					getMapRequest = ProjectPropertiesSolar.loadByName(Constants.GEOSERVER_REST_URL) + "/wms?SERVICE=WMS&VERSION="
-							+ ProjectPropertiesSolar.loadByName(Constants.WMS_VERSION) + "&request=GetMap&LAYERS="
-							+ fileName + "&bbox=" + coverage.boundingBox().getMinX() + ","
+					getMapRequest = ProjectPropertiesSolar.loadByName(Constants.GEOSERVER_REST_URL)
+							+ "/wms?SERVICE=WMS&VERSION=" + ProjectPropertiesSolar.loadByName(Constants.WMS_VERSION)
+							+ "&request=GetMap&LAYERS=" + fileName + "&bbox=" + coverage.boundingBox().getMinX() + ","
 							+ coverage.boundingBox().getMinY() + "," + coverage.boundingBox().getMaxX() + ","
 							+ coverage.boundingBox().getMaxY() + "&srs=" + epsg + "&WIDTH=" + width + "&HEIGHT="
 							+ heigth + "&FORMAT=application/openlayers";
@@ -87,6 +83,82 @@ public class GeoserverUtils {
 		}
 		
 		return getMapRequest;
+	}
+	
+	/*
+	 * pubblica il layer dello zero balance su geoserver
+	 */
+	public static String publisherZeroBalanceLayerOnGeoserver(String layer, String width, String heigth,
+			Catalog catalog, String layerName, String ws, String epsg, ReferencedEnvelope envelope)
+			throws FileNotFoundException {
+		
+		String getMapRequest = null;
+		
+		try {
+			
+			File outputLayerFile = new File(layer);
+			
+			GeoServerRESTPublisher publisher = getRestPublisher();
+			
+			boolean isWsCreated = checkWs(publisher, ws, catalog);
+			
+			String fileName = null;
+			if (outputLayerFile.getName() != null) {
+				fileName = outputLayerFile.getName().substring(0, outputLayerFile.getName().indexOf("."));
+			}
+			
+			if (isWsCreated) {
+				
+				boolean publishResult = publisher.publishShp(ws, ProjectPropertiesSolar.loadByName(Constants.ZERO_BALANCE_STORENAME), fileName, outputLayerFile, epsg,
+							ProjectPropertiesSolar.loadByName(Constants.ZERO_BALANCE_STYLE));
+				
+				if (publishResult) {
+					FeatureTypeInfo featureType = catalog.getFeatureTypeByName(fileName);
+					
+					getMapRequest = ProjectPropertiesSolar.loadByName(Constants.GEOSERVER_REST_URL)
+							+ "/wms?SERVICE=WMS&VERSION=" + ProjectPropertiesSolar.loadByName(Constants.WMS_VERSION)
+							+ "&request=GetMap&LAYERS=" + fileName + "&bbox=" + featureType.boundingBox().getMinX() + ","
+							+ featureType.boundingBox().getMinY() + "," + featureType.boundingBox().getMaxX() + ","
+							+ featureType.boundingBox().getMaxY() + "&srs=" + epsg + "&WIDTH=" + width + "&HEIGHT="
+							+ heigth + "&FORMAT=application/openlayers";
+					
+					getMapRequest += "&styles=" + ProjectPropertiesSolar.loadByName(Constants.ZERO_BALANCE_STYLE);
+				}
+			}
+			
+		}
+		catch (Exception e) {
+			throw new WPSException("error publishing layer on geoserver");
+		}
+		finally {
+			if (layer != null) {
+				ProcessUtils.deleteTmpFile(layer);
+			}
+		}
+		
+		return getMapRequest;
+	}
+	
+	private static boolean checkWs(GeoServerRESTPublisher publisher, String ws, Catalog catalog) {
+		//se non c'è il ws temp lo creo
+		boolean wsCreated = true;
+		if (catalog.getWorkspaceByName(ws) == null) {
+			wsCreated = publisher.createWorkspace(ws);
+		}
+		return wsCreated;
+	}
+	
+	/**
+	 * restituisce il publisher
+	 * 
+	 * @return
+	 */
+	private static GeoServerRESTPublisher getRestPublisher() {
+		GeoServerRESTPublisher publisher = new GeoServerRESTPublisher(
+				ProjectPropertiesSolar.loadByName(Constants.GEOSERVER_REST_URL),
+				ProjectPropertiesSolar.loadByName(Constants.GEOSERVER_REST_USER),
+				ProjectPropertiesSolar.loadByName(Constants.GEOSERVER_REST_PW));
+		return publisher;
 	}
 	
 	/*

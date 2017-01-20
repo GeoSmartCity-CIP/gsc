@@ -23,7 +23,8 @@ MYMAPSET=$1
 echo "mapset $MYMAPSET"
 
 # Set the global grassrc file to individual file name
-MYGISRC="$HOME/.grassrc.$GRASS_VERSION.$$"
+MYGISRC="/home/install/.grassrc.$GRASS_VERSION.$$"
+export HOME="home/install"
  
 echo "GISDBASE: $MYGISDBASE" > "$MYGISRC"
 echo "LOCATION_NAME: $MYLOC" >> "$MYGISRC"
@@ -171,7 +172,7 @@ if [ ${seqarray[1]} -gt $next -o $next -eq ${seqarray[1]} ]; then
   for i in `seq $next ${seqarray[1]}`;
     do
       echo "sum for r.sun"
-      r.mapcalc --overwrite "RESULT_SUM_${timestamp} = rsun_${timestamp}_$i + RESULT_SUM_${timestamp}"
+      r.mapcalc --overwrite "RESULT_SUM_${timestamp} = (rsun_${timestamp}_$i + RESULT_SUM_${timestamp})/1000"
     done; 
  fi
 
@@ -187,9 +188,9 @@ echo "*****************************************"
 
 #r.out.gdal input=rsun_${timestamp}_1 output=/opt/geoserver_datadir/data/gsc/${timestamp}_outputRSUN1.tiff format=GTiff
 #r.out.gdal input=rsun_${timestamp}_2 output=/opt/geoserver_datadir/data/gsc/${timestamp}_outputRSUN2.tiff format=GTiff
-r.out.gdal input=RESULT_SUM_${timestamp} output=/opt/geoserver_datadir/data/gsc/${timestamp}_outputRSUNSUM.tiff format=GTiff
+r.out.gdal input=RESULT_SUM_${timestamp} output=/opt/geoserver_datadir/data/gsc/${timestamp}_outputRSUN.tiff format=GTiff
 
-echo "/opt/geoserver_datadir/data/gsc/${timestamp}_outputRSUNSUM.tiff" 1>&3
+echo "/opt/geoserver_datadir/data/gsc/${timestamp}_outputRSUN.tiff" 1>&3
 
 g.remove type=raster name=dtm_${timestamp}
 g.remove type=raster name=dsm_${timestamp}
