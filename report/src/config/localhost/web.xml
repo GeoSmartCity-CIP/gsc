@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd" id="WebApp_ID" version="2.5">
+  <display-name>gsc-plugin</display-name>
+  <welcome-file-list>
+    <welcome-file>index.html</welcome-file>
+  </welcome-file-list>
+  <servlet>
+		<servlet-name>GSCServlet</servlet-name>
+		<servlet-class>it.sinergis.gsc.servlet.GSCServlet</servlet-class>
+		<init-param>
+			<param-name>sessionBeanID</param-name>
+			<param-value>it/sinergis/gsc/servlet/GSCServlet</param-value>
+		</init-param>
+		<init-param>
+			<param-name>ooHost</param-name>
+			<param-value>localhost</param-value>
+		</init-param>
+		<init-param>
+			<param-name>ooPort</param-name>
+			<param-value>2002</param-value>
+		</init-param>
+		<init-param>
+		<!-- percorso assoluto in cui memorizzare temporaneamente le immagini dei grafici -->
+			<param-name>tempFileDir</param-name>
+			<param-value>C:\opt\tmp\</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>GSCServlet</servlet-name>
+		<url-pattern>/gscservlet</url-pattern>
+	</servlet-mapping>
+</web-app>

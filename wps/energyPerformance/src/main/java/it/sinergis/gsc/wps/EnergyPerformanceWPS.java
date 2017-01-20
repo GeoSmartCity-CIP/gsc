@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.apache.log4j.Logger;
+import org.geoserver.wps.jts.SpringBeanProcessFactory;
 import org.geotools.data.DataUtilities;
 import org.geotools.data.collection.ListFeatureCollection;
 import org.geotools.data.simple.SimpleFeatureCollection;
@@ -18,7 +19,7 @@ import org.geotools.feature.simple.SimpleFeatureTypeBuilder;
 import org.geotools.process.factory.DescribeParameter;
 import org.geotools.process.factory.DescribeProcess;
 import org.geotools.process.factory.DescribeResult;
-import org.geotools.process.gs.GSProcess;
+//import org.geotools.process.gs.GSProcess;
 import org.opengis.feature.Feature;
 import org.opengis.feature.simple.SimpleFeature;
 import org.opengis.feature.simple.SimpleFeatureType;
@@ -36,28 +37,35 @@ import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.io.ParseException;
 
 import it.sinergis.gsc.db.EnergyDBService;
+import it.sinergis.gsc.support.Utils;
+import it.sinergis.gsc.wps.model.EnergyModel;
+import it.sinergis.gsmc.exception.ClimaticZoneException;
 
 @DescribeProcess(title="EnergyPerformanceWPS", description="EnergyPerformanceWPS sample")
-public class EnergyPerformanceWPS implements GSProcess {
+public class EnergyPerformanceWPS extends SpringBeanProcessFactory {
+	//implements GSProcess
   final static Logger logger = Logger.getLogger(EnergyPerformanceWPS.class);
+  public EnergyPerformanceWPS () {//Catalog catalog
+	  super("EnergyPerformanceWPS" ,"gsc", EnergyPerformanceWPS.class);
+	}
   
   @DescribeResult(name="result", description="mappa di energy performance ")
    public SimpleFeatureCollection execute(
-		   @DescribeParameter(name="climaticZone", min = 1, max=1, description="name of the TABULA climatic zone, for more info ceck the web page hub.geosmartcity.eu/information/tabula") String climaticZone,		   
-		   @DescribeParameter(name="begin", min = 0, max=1, description="") String begin,		   
-		   @DescribeParameter(name="end", min = 1, max=1, description="end of the building construction") String end,		   
-		   @DescribeParameter(name="height", min = 0, max=1, description="name of the field that contains heigth of the building ") String height,	   
-		   @DescribeParameter(name="floors", min = 0, max=1, description="name of the field that contains the number of floors of the building ") String floors,	   
-		   @DescribeParameter(name="aveFloor", min = 0, max=1, description="name of the field that contains average floor heigth") String aveFloor,
-		   @DescribeParameter(name="refurbihment", min = 0, max=1, description="name of the field that contains average floor heigth") String refurbihment,
-		   @DescribeParameter(name="residential", min = 0, max=1, description="name of the field that indicate if the building is residential") String residential,
-		   @DescribeParameter(name="id", min = 0, max=1, description="name of the field that indicate if the building is residential") String id,
-		   @DescribeParameter(name="mapName")SimpleFeatureCollection map
+		   @DescribeParameter(name="climaticZone", min = 1, max=1, description="name of the TABULA climatic zone, for more info check the web page http://hub.geosmartcity.eu/tabulaRest/rest/tabula") String climaticZone,		   
+		   @DescribeParameter(name="begin", min = 0, max=1, description="name of the attribute that contains the begin construction year of buildings") String begin,		   
+		   @DescribeParameter(name="end", min = 1, max=1, description="name of the attribute that contains the end construction year of buildings. If the begin field is used, the data considered by the computation is the middle of the 2 values") String end,		   
+		   @DescribeParameter(name="height", min = 0, max=1, description="name of the attribute that contains the heigtht of the building.") String height,	   
+		   @DescribeParameter(name="floors", min = 0, max=1, description="name of the attribute that contains the number of floors of the buildings.") String floors,	   
+		   @DescribeParameter(name="aveFloor", min = 0, max=1, description="name of the attribute that contains the information of the average floor heigth of the building.") String aveFloor,
+		   @DescribeParameter(name="refurbihment", min = 0, max=1, description="name of the attribute that contains the information about the refurbihment level. The values on the layer can be: 0 -> no refurbihment 1 -> standard 2 -> advance If this field is not edited all buildings use the standard refurbihment.") String refurbihment,
+		   @DescribeParameter(name="residential", min = 0, max=1, description="name of the attribute that indicates whether the building is residential. If this field is not edited all building is considered as residential") String residential,
+		   @DescribeParameter(name="id", min = 0, max=1, description="field that indicate a key to add at the layer that will be generate.") String id,
+		   @DescribeParameter(name="layer",  description="the building layer")SimpleFeatureCollection layer
 		   
 		   ) {
 	   //Start exstraction info from layer
 	 
-	   final SimpleFeatureType original = map.getSchema();
+	   final SimpleFeatureType original = layer.getSchema();
 	   CoordinateReferenceSystem coordinatesystem = original.getCoordinateReferenceSystem();
 	   Set<ReferenceIdentifier> sid =coordinatesystem.getIdentifiers();
 	   
@@ -92,12 +100,15 @@ public class EnergyPerformanceWPS implements GSProcess {
 		   
 		   dbEnergy.createEnergyTable();
 		   logger.debug("creata tabella");
-		   LinkedList<EnergyModel> listaBuilding=generateListeFeature(map,  id,  floors, height, begin,end, refurbihment, residential, aveFloor);
-		   dbEnergy.insertInto(listaBuilding,climaticZone);
+		   LinkedList<EnergyModel> listaBuilding=generateListeFeature(layer,  id,  floors, height, begin,end, refurbihment, residential, aveFloor);
+		   String code =dbEnergy.getClimaticCode(climaticZone);
+		   dbEnergy.insertInto(listaBuilding,code);
 		   logger.debug("caricato il layer");
-		   dbEnergy.updateALL(climaticZone);
+		   
+		   dbEnergy.updateALL(code);
+		   logger.debug("calcolo degli indici di ep completato ");
 		   LinkedList<EnergyModel> listaCertificate=dbEnergy.getResult();
-		   SimpleFeatureCollection createSimpleFeatureCollection = createSimpleFeatureCollection(listaCertificate,map);
+		   SimpleFeatureCollection createSimpleFeatureCollection = createSimpleFeatureCollection(listaCertificate,layer);
 		   dbEnergy.deleteEnergytable();
 		   logger.debug("creato layer di ritorno");
 	//	   dbEnergy.insertInto(buildingList);
@@ -120,14 +131,13 @@ public class EnergyPerformanceWPS implements GSProcess {
 		   logger.error("ParseException");
 		e.printStackTrace();
 		return null;
+	} catch (ClimaticZoneException e) {
+		// TODO Auto-generated catch block
+		logger.error("the code does't exist");
+		e.printStackTrace();
+		return null;
 	}
 
-	   //TODO creazione della tabella tmp (permessi) 
-	   //TODO creazione e insert 
-	   //TODO store procedure
-	   //TODO creazione gml di risposta 
-
-       // return null;
    }
    
    public static SimpleFeatureCollection createSimpleFeatureCollection(LinkedList<EnergyModel> listaBuilding, SimpleFeatureCollection features) throws SchemaException{
@@ -190,8 +200,7 @@ public class EnergyPerformanceWPS implements GSProcess {
 	   
 	   
    }
-   
-   
+
    
    public static LinkedList<EnergyModel>  generateListeFeature(SimpleFeatureCollection map, String id, String floor,String height,String begin , String end,String refurbihment,String residential,String avg_floor){
 	   SimpleFeatureIterator iteratoreFeature = map.features();
@@ -203,17 +212,17 @@ public class EnergyPerformanceWPS implements GSProcess {
 	        
 	        //classid,zone,ave_floor,\"end\",floors,height_val) values
 
-	        em.setId(getFeatureString(feature,id));
-	        em.setFloor(getFeatureDouble(feature, floor));
-	        em.setHeigth(getFeatureDouble(feature, height));
+	        em.setId(Utils.getFeatureString(feature,id));
+	        em.setFloor(Utils.getFeatureDouble(feature, floor));
+	        em.setHeigth(Utils.getFeatureDouble(feature, height));
 	        
-	        Integer beginInt = getFeatureInteger(feature, begin);
-	        Integer endInt = getFeatureInteger(feature, end);
+	        Integer beginInt = Utils.getFeatureInteger(feature, begin);
+	        Integer endInt = Utils.getFeatureInteger(feature, end);
 	        Integer date = 0;
 	         
-	        if (beginInt != null){
+	        if (beginInt != null && beginInt> 0 ){
 	        	date = beginInt;
-	        	if (endInt!=null){
+	        	if (endInt!=null && endInt>0 ){
 	        		date = (endInt +beginInt )/2;
 	        	}
 	        		
@@ -221,18 +230,18 @@ public class EnergyPerformanceWPS implements GSProcess {
 	        	date = endInt;	        	
 	        }
 	        em.setYearOfCostruction(date);	       
-	        em.setAve_flor(getFeatureDouble(feature, avg_floor));
+	        em.setAve_flor(Utils.getFeatureDouble(feature, avg_floor));
 	        	
 	        if(residential == null ||residential.trim().equals("")){
 	        	em.setResidential(true);
 	        }else{
-	        	em.setResidential(getFeatureBoolean(feature,residential));
+	        	em.setResidential(Utils.getFeatureBoolean(feature,residential));
 	        }
 	       
 	        if(refurbihment == null ||refurbihment.trim().equals("")){
 	        	em.setRefurbishment("standard");
 	        }else{
-	 	       Integer re = getFeatureInteger(feature, refurbihment);
+	 	       Integer re = Utils.getFeatureInteger(feature, refurbihment);
 	           if(re==null||re==1) em.setRefurbishment("standard");
 	           else if (re == 0 ) em.setRefurbishment("norefurbishment");
 	           else if (re == 2) em.setRefurbishment("advanced");
@@ -246,71 +255,12 @@ public class EnergyPerformanceWPS implements GSProcess {
 	        Geometry myGeom = (Geometry) feature.getDefaultGeometry();
 	        em.setGeometry(myGeom);
 	        buildingList.add(em);
- 
+	        
 	        
 	    }
 	return buildingList;
    }
-   
-   public static String getFeatureString(SimpleFeature feature, String name){
-	   if (name !=null && name.length()> 0 ){
-		   return (String)feature.getAttribute(name);
-       }else return null;
-   }
-   
-   public static Integer getFeatureInteger(SimpleFeature feature, String name){
-	   if (name !=null && name.length()> 0 ){
-		   Object tmp = feature.getAttribute(name);
-		   if (tmp instanceof Integer ){
-			   return (Integer) tmp;
-		   }else if (tmp instanceof Double ){
-			   return Integer.valueOf(((Double) tmp).intValue());
-		   }else if (tmp instanceof String ){
-			   return Integer.parseInt(((String)tmp).trim());
-		   }
-		   return null;
-       }else return null;
-   }
-   
-   public static Boolean getFeatureBoolean(SimpleFeature feature, String name){
-	   if (name !=null && name.length()> 0 ){
-		   Object tmp = feature.getAttribute(name);
-		   if (tmp instanceof Integer ){
-			   Integer i = (Integer) tmp;
-			   if (i==null) return null;
-			   if (i==0) return false;
-			   return true ;
-		   }else if (tmp instanceof Boolean ){
-			   return Boolean.valueOf(((Boolean) tmp).booleanValue());
-		   }else if (tmp instanceof String ){
-			   String stmp = ((String)tmp).trim();
-			   if (stmp.equalsIgnoreCase("t" ))return true;
-			   if (stmp.equalsIgnoreCase("true" ))return true;
-			   if (stmp.equalsIgnoreCase("f" ))return true;
-			   if (stmp.equalsIgnoreCase("false" ))return false;
-			   return Boolean.parseBoolean(((String)tmp).trim());
-		   }
-		   return null;
-       }else return null;
-   }
-   
-   
-   
-   
-   public static Double getFeatureDouble(SimpleFeature feature, String name){
-	   if (name !=null && name.length()> 0 ){		   
-		   Object tmp = feature.getAttribute(name);
-		   if (tmp instanceof Double ){
-			   return (Double) tmp;
-		   }else if (tmp instanceof Integer ){
-			   return Double.valueOf(((Integer) tmp).intValue());
-		   }else if (tmp instanceof String ){
-			   return Double.parseDouble((String)tmp);
-		   }
-		   return null;
-       }else return null;
-   }
-   
+
    
    
    
