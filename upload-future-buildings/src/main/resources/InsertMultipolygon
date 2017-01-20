@@ -1,0 +1,8 @@
+INSERT INTO wps_solar.buildings(classid, height_height_val, lifespan_beginning, geometry) 
+VALUES(
+	nextval('wps_solar.building_seq'), 
+	$z_coord, 
+	$timestamp,
+	ST_Multi(st_translate(ST_Force3D(
+		ST_GeomFromText('$multipolygon',$epsg)
+		),0,0,$z_coord)))

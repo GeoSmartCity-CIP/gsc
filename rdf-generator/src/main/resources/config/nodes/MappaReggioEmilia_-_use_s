@@ -1,0 +1,3 @@
+<SEMANCO:hasBuilding_Use rdf:parseType="Resource">
+<SEMANCO:building_UseValue>@VALUE@</SEMANCO:building_UseValue>
+</SEMANCO:hasBuilding_Use>
